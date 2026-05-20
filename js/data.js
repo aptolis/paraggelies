@@ -1,0 +1,577 @@
+// ============================================================
+// ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ ΠΡΟΪΟΝΤΩΝ
+// ============================================================
+
+const ZONES = {
+  kty: { label: 'ΚΤΨ — Κατάψυξη', cls: 'kty', icon: 'ti-snowflake', cats: ['ΠΑΤΑΤΕΣ','ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ','ΠΙΤΕΣ','ΚΡΕΑΤΙΚΑ','VEGAN (ΚΤΨ)','ΓΛΥΚΑ / ΠΑΓΩΤΑ','ΨΑΡΙΑ / ΘΑΛΑΣΣΙΝΑ'] },
+  syn: { label: 'Συντήρηση', cls: 'syn', icon: 'ti-temperature-minus', cats: ['ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ','ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ','ΤΥΡΙΑ / ΣΥΝΤΗΡΗΣΗ','ΓΑΛΑΚΤΟΚΟΜΙΚΑ'] },
+  apo: { label: 'Αποθήκη / Ξηρό κομμάτι', cls: 'apo', icon: 'ti-building-warehouse', cats: ['ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ','ΠΡΑΛΙΝΕΣ / ΓΛΥΚΑ ΑΠΟΘΗΚΗ','ΡΥΖΙΑ'] },
+};
+
+function getZone(cat) {
+  for (const [k, z] of Object.entries(ZONES)) {
+    if (z.cats.includes(cat)) return k;
+  }
+  return 'apo';
+}
+
+const DEFAULT_PRODUCTS = {
+
+  // ============================================================
+  // ΠΑΤΑΤΕΣ (ΚΤΨ)
+  // ============================================================
+  'ΠΑΤΑΤΕΣ': [
+    // Lamb Weston
+    { id:'lw1', name:'LW φλούδα', slang:'lw φλούδα lamb weston φλούδα', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw2', name:'LW 6άρα', slang:'lw 6αρα lamb weston 6αρα', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw3', name:'LW 9άρα', slang:'lw 9αρα lamb weston 9αρα', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw4', name:'LW 11άρα', slang:'lw 11αρα lamb weston 11αρα', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw5', name:'LW Twisters', slang:'lw twisters lamb weston twisters', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw6', name:'LW Crisscuts', slang:'lw crisscuts lamb weston crisscuts', unit:'κιβ', supplier:'LambWeston' },
+    { id:'lw7', name:'LW Onion Rings', slang:'lw onion rings lamb weston onion rings', unit:'κιβ', supplier:'LambWeston' },
+    // Feast
+    { id:'fe1', name:'Τουρκική 10άρα', slang:'τουρκικη 10αρα feast', unit:'κιβ', supplier:'Feast' },
+    { id:'fe2', name:'Τουρκική 20άρα (χωριάτικη)', slang:'τουρκικη 20αρα χωριατικη feast', unit:'κιβ', supplier:'Feast' },
+    // Lutosa
+    { id:'lu1', name:'Lutosa ροδέλα', slang:'lutosa ροδέλα', unit:'κιβ', supplier:'Lutosa' },
+    // Ολλανδική (άγνωστος προμηθευτής)
+    { id:'ol1', name:'Ολλανδική Άσπρη 10άρα', slang:'ολλανδικη ασπρη 10αρα', unit:'κιβ', supplier:'—' },
+    { id:'ol2', name:'Ολλανδική Άσπρη 20άρα (χωριάτικη)', slang:'ολλανδικη ασπρη 20αρα χωριατικη', unit:'κιβ', supplier:'—' },
+    // Agrarfrost
+    { id:'ag1', name:'Agria 6άρα', slang:'agria 6αρα agrarfrost', unit:'κιβ', supplier:'Agrarfrost' },
+    { id:'ag2', name:'Agria 9άρα', slang:'agria 9αρα agrarfrost', unit:'κιβ', supplier:'Agrarfrost' },
+    { id:'ag3', name:'Agria 11άρα', slang:'agria 11αρα agrarfrost', unit:'κιβ', supplier:'Agrarfrost' },
+    { id:'ag4', name:'Agria 18άρα (χωριάτικη)', slang:'agria 18αρα agrarfrost χωριατικη', unit:'κιβ', supplier:'Agrarfrost' },
+    // Ecofrost
+    { id:'ec1', name:'Eco 9άρα', slang:'eco 9αρα ecofrost', unit:'κιβ', supplier:'Ecofrost' },
+    { id:'ec2', name:'Eco 12άρα', slang:'eco 12αρα ecofrost', unit:'κιβ', supplier:'Ecofrost' },
+    { id:'ec3', name:'Eco 18άρα', slang:'eco 18αρα ecofrost', unit:'κιβ', supplier:'Ecofrost' },
+    // McCain
+    { id:'mc1', name:'McCain φλούδα', slang:'mccain φλούδα', unit:'κιβ', supplier:'McCain' },
+    { id:'mc2', name:'McCain Crispers', slang:'mccain crispers', unit:'κιβ', supplier:'McCain' },
+    { id:'mc3', name:'McCain Petals', slang:'mccain petals', unit:'κιβ', supplier:'McCain' },
+    { id:'mc4', name:'McCain Γλυκοπατάτα', slang:'mccain γλυκοπατατα', unit:'κιβ', supplier:'McCain' },
+    // Aviko
+    { id:'av1', name:'Aviko Crinkle', slang:'aviko crinkle', unit:'κιβ', supplier:'Aviko' },
+    { id:'av2', name:'Aviko Super Crunch', slang:'aviko super crunch', unit:'κιβ', supplier:'Aviko' },
+    { id:'av3', name:'Aviko φλούδα', slang:'aviko φλούδα', unit:'κιβ', supplier:'Aviko' },
+  ],
+
+  // ============================================================
+  // ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ (ΚΤΨ)
+  // ============================================================
+  'ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ': [
+    // Select
+    { id:'sl1', name:'112 - Hamburger Σκέτο 9,5cm Select', slang:'112 hamburger σκετο 9.5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl2', name:'113 - Hamburger Σουσάμι 9,5cm Select', slang:'113 hamburger σουσαμι 9.5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl3', name:'114 - Hamburger Νυφαδ. 9,5cm Select', slang:'114 hamburger νυφαδ 9.5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl4', name:'111 - Large Σουσάμι 11,5cm Select', slang:'111 large σουσαμι 11.5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl5', name:'412 - Ψωμί Σιμιγδάλι Select', slang:'412 ψωμι σιμιγδαλι select', unit:'κιβ', supplier:'Select' },
+    { id:'sl6', name:'453 - Brioche Bun Mini 7cm Select', slang:'453 brioche bun mini 7 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl7', name:'539 - Brioche Bun Large 11,5cm Select', slang:'539 brioche bun large 11.5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl8', name:'312 - Hot Dog Μικρό 15cm Select', slang:'312 hot dog μικρο 15 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl9', name:'187 - Hot Dog Σκέτο 19cm Select', slang:'187 hot dog σκετο 19 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl10', name:'106 - Hot Dog Σουσάμι 19cm Select', slang:'106 hot dog σουσαμι 19 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl11', name:'229 - Jumbo Σουσάμι 24cm Select', slang:'229 jumbo σουσαμι 24 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl12', name:'221 - Σάντουιτς Σκέτο 16cm Select', slang:'221 σαντουιτς σκετο 16 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl13', name:'185 - Σάντουιτς Γίγας 20cm Select', slang:'185 σαντουιτς γιγας 20 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl14', name:'193 - Τοστ Λευκό 860gr Νωπό Select', slang:'193 τοστ λευκο 860 νωπο select', unit:'κιβ', supplier:'Select' },
+    { id:'sl15', name:'296 - Τοστ Λευκό Γίγας 1000gr Select', slang:'296 τοστ λευκο γιγας 1000 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl16', name:'179 - Μπαγκέτα Ολ. Αλεσεώς Σους 5cm Select', slang:'179 μπαγκετα ολικης σους 5 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl17', name:'479 - Μπαγκέτα Λευκή 110 Select', slang:'479 μπαγκετα λευκη 110 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl18', name:'542 - Μπαγκέτα Ολικής 110 Select', slang:'542 μπαγκετα ολικης 110 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl19', name:'586 - Μπαγκέτα Λευκή 250 Select', slang:'586 μπαγκετα λευκη 250 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl20', name:'560 - Μπαγκέτα Λευκή 27cm Ψημένη Select', slang:'560 μπαγκετα λευκη 27 ψημενη select', unit:'κιβ', supplier:'Select' },
+    { id:'sl21', name:'426 - Μπαγκέτα Βιενέζικη 26cm Select', slang:'426 μπαγκετα βιενεζικη 26 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl22', name:'146 - Μπαγκέτα Πολύσπορη 25cm Select', slang:'146 μπαγκετα πολυσπορη 25 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl23', name:'655 - Μπαγκέτα Λευκή Σους 27cm 4τμχ (Μάρκετ) Select', slang:'655 μπαγκετα λευκη σους 27 4τμχ μαρκετ select', unit:'κιβ', supplier:'Select' },
+    { id:'sl24', name:'664 - Μπαγκέτα Λευκή Χ/Σουσάμι 27cm 4τμχ (Μάρκετ) Select', slang:'664 μπαγκετα λευκη χωρις σουσαμι 27 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl25', name:'Μπαγκέτα Ολικής Σους 27cm 8τμχ Select', slang:'μπαγκετα ολικης σους 27 8τμχ select', unit:'κιβ', supplier:'Select' },
+    { id:'sl26', name:'140 - Καρβελάκι Χειροποίητο Select', slang:'140 καρβελακι χειροποιητο select', unit:'κιβ', supplier:'Select' },
+    { id:'sl27', name:'202 - Κουλούρι Στρογγυλό Θεσ/Νίκης Select', slang:'202 κουλουρι στρογγυλο θεσσαλονικης select', unit:'κιβ', supplier:'Select' },
+    { id:'sl28', name:'504 - Hamburger Black Select', slang:'504 hamburger black select', unit:'κιβ', supplier:'Select' },
+    { id:'sl29', name:'122 - Κρουτόν 500gr Select', slang:'122 κρουτον 500 select', unit:'τεμ', supplier:'Select' },
+    { id:'sl30', name:'205 - Τορτίγια 25cm Select', slang:'205 τορτιγια 25 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl31', name:'208 - Τορτίγια 30cm Select (Habitos)', slang:'208 τορτιγια 30 habitos select', unit:'κιβ', supplier:'Select' },
+    { id:'sl32', name:'209 - Τορτίγια Ολικής 30cm Select', slang:'209 τορτιγια ολικης 30 select', unit:'κιβ', supplier:'Select' },
+    { id:'sl33', name:'667 - Ψωμ. Jackson Brioche Select', slang:'667 jackson brioche select', unit:'κιβ', supplier:'Select' },
+    { id:'sl34', name:'653 - Πίτα Απ\'Όλα 15αρα Select', slang:'653 πιτα απολα 15αρα select', unit:'κιβ', supplier:'Select' },
+    { id:'sl35', name:'487 - Brioche Bun King Select', slang:'487 brioche bun king select king μπριος', unit:'κιβ', supplier:'Select' },
+    { id:'sl36', name:'293 - Hamburger King με Σουσάμι Select', slang:'293 hamburger king σουσαμι select', unit:'κιβ', supplier:'Select' },
+    { id:'sl37', name:'577 - Potato Bun Select', slang:'577 potato bun select', unit:'κιβ', supplier:'Select' },
+    { id:'sl38', name:'Ζαπάτα Select', slang:'ζαπατα select', unit:'κιβ', supplier:'Select' },
+    // Αραμπατζής
+    { id:'ar1', name:'Ταψί τυρί Αραμπατζής', slang:'ταψι τυρι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar2', name:'Ταψί σπανάκι Αραμπατζής', slang:'ταψι σπανακι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar3', name:'Ταψί πράσο Αραμπατζής', slang:'ταψι πρασο αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar4', name:'Κρουασάν μικρό (258) Αραμπατζής', slang:'κρουασαν μικρο 258 αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar5', name:'Κρουασάν μεγάλο Αραμπατζής', slang:'κρουασαν μεγαλο αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar6', name:'Κρουασάν μπατόν Αραμπατζής', slang:'κρουασαν μπατον αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar7', name:'Ρολό πατάτα Αραμπατζής', slang:'ρολο πατατα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar8', name:'Ρολό τυρί Αραμπατζής', slang:'ρολο τυρι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar9', name:'Ρολό κρέμα Αραμπατζής', slang:'ρολο κρεμα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar10', name:'Ρολό σπανάκι Αραμπατζής', slang:'ρολο σπανακι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar11', name:'Ρολό κολοκύθι Αραμπατζής', slang:'ρολο κολοκυθι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar12', name:'Κουλούρι τυρί (116) Αραμπατζής', slang:'κουλουρι τυρι 116 αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar13', name:'Κουλούρι ελιά ντομάτα Αραμπατζής', slang:'κουλουρι ελια ντοματα αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar14', name:'Κουλούρι με πραλίνα Αραμπατζής', slang:'κουλουρι πραλινα αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar15', name:'Κουλούρι με χαλβά Αραμπατζής', slang:'κουλουρι χαλβα αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar16', name:'Κουλούρι με φιλαδέλφεια Αραμπατζής', slang:'κουλουρι φιλαδελφεια αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar17', name:'Κουλούρι ολικής με φιλαδέλφεια Αραμπατζής', slang:'κουλουρι ολικης φιλαδελφεια αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar18', name:'Κουλούρι Θεσ/νίκης Αραμπατζής', slang:'κουλουρι θεσσαλονικης αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar19', name:'Μίνι ρολό τυρί Αραμπατζής', slang:'μινι ρολο τυρι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar20', name:'Μίνι ρολό κρέμα Αραμπατζής', slang:'μινι ρολο κρεμα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar21', name:'Μίνι ρολό σπανάκι Αραμπατζής', slang:'μινι ρολο σπανακι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar22', name:'Μίνι ρολό πατάτα Αραμπατζής', slang:'μινι ρολο πατατα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar23', name:'Μίνι ρολό πράσο Αραμπατζής', slang:'μινι ρολο πρασο αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar24', name:'Μπουγάτσα τυρί Αραμπατζής', slang:'μπουγατσα τυρι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar25', name:'Μπουγάτσα κρέμα Αραμπατζής', slang:'μπουγατσα κρεμα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar26', name:'Μπουγάτσα κρέμα κιλού Αραμπατζής', slang:'μπουγατσα κρεμα κιλου αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar27', name:'Μπέικον πεινιρλί (μίνι) Αραμπατζής', slang:'μπεικον πεινιρλι μινι αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar28', name:'Ατομικό πεινιρλί Αραμπατζής', slang:'ατομικο πεινιρλι αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar29', name:'Στριφτή τυρί Αραμπατζής', slang:'στριφτη τυρι αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar30', name:'Στριφτή πράσο Αραμπατζής', slang:'στριφτη πρασο αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar31', name:'Εφης 003 Αραμπατζής', slang:'εφης 003 αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar32', name:'Ζαμπόν/Κασέρι Δίχτυ Αραμπατζής', slang:'ζαμπον κασερι διχτυ αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar33', name:'Τρίγωνη με χόρτα Αραμπατζής', slang:'τριγωνη χορτα αραμπατζης', unit:'κιβ', supplier:'Αραμπατζής' },
+    { id:'ar34', name:'Σφολιάτα Αραμπατζής', slang:'σφολιατα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar35', name:'Brioche κότα Αραμπατζής', slang:'brioche κοτα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    { id:'ar36', name:'Κοτόπιτα Αραμπατζής', slang:'κοτοπιτα αραμπατζης', unit:'τεμ', supplier:'Αραμπατζής' },
+    // Καραμολέγκος
+    { id:'km1', name:'Ψωμί για τοστ Καραμολέγκος', slang:'ψωμι τοστ καραμολεγκος', unit:'κιβ', supplier:'Καραμολέγκος' },
+  ],
+
+  // ============================================================
+  // ΠΙΤΕΣ (ΚΤΨ)
+  // ============================================================
+  'ΠΙΤΕΣ': [
+    // Select
+    { id:'psl1', name:'061 - Πίτα Ολικής 17αρα Select', slang:'061 πιτα ολικης 17αρα select', unit:'κιβ', supplier:'Select' },
+    { id:'psl2', name:'592 - Πίτα Καλαμποκί 17αρα Select', slang:'592 πιτα καλαμποκι 17αρα select', unit:'κιβ', supplier:'Select' },
+    { id:'psl3', name:'594 - Πίτα Τετράγωνη 18αρα Select', slang:'594 πιτα τετραγωνη 18αρα select', unit:'κιβ', supplier:'Select' },
+    { id:'psl4', name:'523 - Πίτα 15αρα Φουρνιστή Select', slang:'523 πιτα 15αρα φουρνιστη select', unit:'κιβ', supplier:'Select' },
+    { id:'psl5', name:'524 - Πίτα 17αρα Φουρνιστή Select', slang:'524 πιτα 17αρα φουρνιστη select', unit:'κιβ', supplier:'Select' },
+    { id:'psl6', name:'607 - Πίτα Μεσογειακή 17αρα Select', slang:'607 πιτα μεσογειακη 17αρα select', unit:'κιβ', supplier:'Select' },
+    { id:'psl7', name:'269 - Βάση Pizza 29cm Select', slang:'269 βαση pizza 29 select', unit:'κιβ', supplier:'Select' },
+    { id:'psl8', name:'270 - Πίτα Pocket 17αρα Select', slang:'270 πιτα pocket 17αρα select', unit:'κιβ', supplier:'Select' },
+    // Αλεξάκης
+    { id:'pal1', name:'Αλεξάκης 16αρα', slang:'αλεξακης 16αρα', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal2', name:'Αλεξάκης 17αρα', slang:'αλεξακης 17αρα', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal3', name:'Αλεξάκης 20αρα', slang:'αλεξακης 20αρα', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal4', name:'Δια Χειρός 16αρα', slang:'δια χειρος 16αρα αλεξακης', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal5', name:'Δια Χειρός 17αρα', slang:'δια χειρος 17αρα αλεξακης', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal6', name:'Πιτάκι 10ράκι', slang:'πιτακι 10ρακι αλεξακης', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal7', name:'Pocket Αλεξάκης', slang:'pocket αλεξακης', unit:'κιβ', supplier:'Αλεξάκης' },
+    { id:'pal8', name:'Κυπριακή Αλεξάκης', slang:'κυπριακη αλεξακης', unit:'κιβ', supplier:'Αλεξάκης' },
+    // Κολιός
+    { id:'pkl1', name:'16αρα Κολιός', slang:'16αρα κολιος', unit:'κιβ', supplier:'Κολιός' },
+    { id:'pkl2', name:'17αρα Κολιός', slang:'17αρα κολιος', unit:'κιβ', supplier:'Κολιός' },
+    { id:'pkl3', name:'Κίτρινη Κολιός', slang:'κιτρινη κολιος', unit:'κιβ', supplier:'Κολιός' },
+    { id:'pkl4', name:'Τετράγωνη Κολιός', slang:'τετραγωνη κολιος', unit:'κιβ', supplier:'Κολιός' },
+    { id:'pkl5', name:'Κυπριακή Κολιός', slang:'κυπριακη κολιος', unit:'κιβ', supplier:'Κολιός' },
+    // Χασιώτης
+    { id:'ph1', name:'Χασιώτη πίτα 16αρα', slang:'χασιωτη πιτα 16αρα', unit:'κιβ', supplier:'Χασιώτης' },
+    { id:'ph2', name:'Χασιώτη πίτα 17αρα', slang:'χασιωτη πιτα 17αρα', unit:'κιβ', supplier:'Χασιώτης' },
+    { id:'ph3', name:'Χασιώτη Κυπριακή', slang:'χασιωτη κυπριακη', unit:'κιβ', supplier:'Χασιώτης' },
+  ],
+
+  // ============================================================
+  // ΚΡΕΑΤΙΚΑ (ΚΤΨ)
+  // ============================================================
+  'ΚΡΕΑΤΙΚΑ': [
+    // Βικρέ
+    { id:'vi1', name:'Κοτομπουκιές Βικρέ', slang:'κοτομπουκιες βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi2', name:'Γεμιστό Μπιφτέκι Βικρέ', slang:'γεμιστο μπιφτεκι βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi3', name:'Σνίτσελ Πανέ Βικρέ', slang:'σνιτσελ πανε βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi4', name:'Γύρος Χοιρινός Βικρέ', slang:'γυρος χοιρινος βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi5', name:'Strips Βικρέ', slang:'strips βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi6', name:'Σουτζουκάκι 90gr Βικρέ', slang:'σουτζουκακι 90 βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi7', name:'Χωριάτικο Μπιφτέκι 140gr Βικρέ', slang:'χωριατικο μπιφτεκι 140 βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi8', name:'Σουτζουκάκι 70gr Βικρέ', slang:'σουτζουκακι 70 βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi9', name:'Πανσετάκι Βικρέ', slang:'πανσετακι βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi10', name:'Μπιφτέκι Σχάρας/ψημένο Βικρέ', slang:'μπιφτεκι σχαρας ψημενο βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi11', name:'Σνίτσελ Crispy Βικρέ', slang:'σνιτσελ crispy βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi12', name:'Γύρος Κοτόπουλο Βικρέ', slang:'γυρος κοτοπουλο βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi13', name:'Σις Πολίτικο/κεμπάπ Βικρέ', slang:'σις πολιτικο κεμπαπ βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi14', name:'Σουβλάκι Κοτ. Στήθος Βικρέ', slang:'σουβλακι κοτοπουλο στηθος βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi15', name:'Κότσι Βικρέ', slang:'κοτσι βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi16', name:'Μπιφτέκι Βόειο 170gr Βικρέ', slang:'μπιφτεκι βοειο 170 βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi17', name:'Σνίτσελ Χοιρινό Πανέ Βικρέ', slang:'σνιτσελ χοιρινο πανε βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi18', name:'Σνίτσελ Χοιρινό Μερίδος Βικρέ', slang:'σνιτσελ χοιρινο μεριδος βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi19', name:'Σνίτσελ Κοτόπουλο Μερίδος Βικρέ', slang:'σνιτσελ κοτοπουλο μεριδος βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi20', name:'Σουτζουκάκι 30gr Βικρέ', slang:'σουτζουκακι 30 βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi21', name:'Κοντοσούβλι Χοιρινό 3Kg Βικρέ', slang:'κοντοσουβλι χοιρινο 3kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi22', name:'Κοντοσούβλι Χοιρινό 5Kg Βικρέ', slang:'κοντοσουβλι χοιρινο 5kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi23', name:'Κοντοσούβλι Κοτόπουλο 3Kg Βικρέ', slang:'κοντοσουβλι κοτοπουλο 3kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi24', name:'Κοντοσούβλι Κοτόπουλο 5Kg Βικρέ', slang:'κοντοσουβλι κοτοπουλο 5kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi25', name:'Κοκορέτσι 3Kg Βικρέ', slang:'κοκορετσι 3kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi26', name:'Κοκορέτσι 5Kg Βικρέ', slang:'κοκορετσι 5kg βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi27', name:'Φιλέτο Κοτόπουλο Στήθος Βικρέ', slang:'φιλετο κοτοπουλο στηθος βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    { id:'vi28', name:'Αρνίσια Παϊδάκια Βικρέ', slang:'αρνισια παιδακια βικρε', unit:'κιβ', supplier:'Βικρέ' },
+    // Στόχος
+    { id:'st1', name:'Γύρος Χοιρινός ψημένος Στόχος', slang:'γυρος χοιρινος ψημενος στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st2', name:'Γύρος Κοτόπουλο ψημένος Στόχος', slang:'γυρος κοτοπουλο ψημενος στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st3', name:'Μαμαδάκι ψημένο Στόχος', slang:'μαμαδακι ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st4', name:'Μπουτάκι ψημένο Στόχος', slang:'μπουτακι ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st5', name:'Κεφτεδάκι ψημένο Στόχος', slang:'κεφτεδακι ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st6', name:'Φιλέτο ψημένο Στόχος', slang:'φιλετο ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st7', name:'Καλαμάτο ψημένο Στόχος', slang:'καλαματο ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st8', name:'Homestyle φιλέτο ψημένο Στόχος', slang:'homestyle φιλετο ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st9', name:'Homestyle φιλετάκι ψημένο Στόχος', slang:'homestyle φιλετακι ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st10', name:'Μαλλιά αγγέλου ψημένο Στόχος', slang:'μαλλια αγγελου ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st11', name:'Pop Corn ψημένο Στόχος', slang:'pop corn ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st12', name:'American Burger 190gr ψημένο Στόχος', slang:'american burger 190 ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st13', name:'Pulled Porc ψημένο Στόχος', slang:'pulled porc ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st14', name:'Μπριζολάκι ψημένο Στόχος', slang:'μπριζολακι ψημενο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st15', name:'Μπιφτέκι Η130 ωμό Στόχος', slang:'μπιφτεκι η130 ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st16', name:'Σουτζουκάκι ωμό Στόχος', slang:'σουτζουκακι ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st17', name:'Μαμαδάκι ωμό Στόχος', slang:'μαμαδακι ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st18', name:'Smashed ωμό Στόχος', slang:'smashed ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st19', name:'Κριτσίνι ωμό Στόχος', slang:'κριτσινι ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st20', name:'Γεμιστό μπιφτέκι ωμό Στόχος', slang:'γεμιστο μπιφτεκι ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st21', name:'Καλαμάτο ωμό Στόχος', slang:'καλαματο ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st22', name:'Κοκορέτσι ωμό Στόχος', slang:'κοκορετσι ωμο στοχος', unit:'κιβ', supplier:'Στόχος' },
+    { id:'st23', name:'Κεμπάπ Στόχος', slang:'κεμπαπ στοχος', unit:'κιβ', supplier:'Στόχος' },
+    // Μάκης
+    { id:'mk1', name:'Χοιρινό κοντοσούβλι Μάκης', slang:'χοιρινο κοντοσουβλι μακης', unit:'κιβ', supplier:'Μάκης' },
+    { id:'mk2', name:'Μοσχαρίσιο κοντοσούβλι Μάκης', slang:'μοσχαρισιο κοντοσουβλι μακης', unit:'τεμ', supplier:'Μάκης' },
+    // Xana
+    { id:'xn1', name:'Κοτομπουκιά Xana', slang:'κοτομπουκια xana', unit:'κιβ', supplier:'Xana' },
+    // Παρνασός
+    { id:'pn1', name:'Κοτομπουκιά Παρνασός', slang:'κοτομπουκια παρνασος', unit:'κιβ', supplier:'Παρνασός' },
+    // Υφαντής ΚΤΨ
+    { id:'yf_k1', name:'Κοτομπουκιές Υφαντής', slang:'κοτομπουκιες υφαντης', unit:'κιβ', supplier:'Υφαντής' },
+    { id:'yf_k2', name:'Μπιφτέκι Υφαντής', slang:'μπιφτεκι υφαντης', unit:'κιβ', supplier:'Υφαντής' },
+    // Καλαμάτας
+    { id:'kal1', name:'Angus Μπιφτέκι Καλαμάτας', slang:'angus μπιφτεκι καλαματας', unit:'κιβ', supplier:'Καλαμάτας' },
+    { id:'kal2', name:'80αρι ανάμεικτο Καλαμάτας', slang:'80αρι αναμεικτο καλαματας', unit:'κιβ', supplier:'Καλαμάτας' },
+    { id:'kal3', name:'Premium Μπιφτέκι Καλαμάτας', slang:'premium μπιφτεκι καλαματας', unit:'κιβ', supplier:'Καλαμάτας' },
+    // Alterra
+    { id:'alt1', name:'Λωρίδα κοτόπουλο 2,5kg Alterra', slang:'λωριδα κοτοπουλο 2.5 alterra', unit:'τεμ', supplier:'Alterra' },
+    { id:'alt2', name:'Ψημένο σουβλάκι 2,5kg Alterra', slang:'ψημενο σουβλακι 2.5 alterra', unit:'τεμ', supplier:'Alterra' },
+    { id:'alt3', name:'Ψημένο φιλέτο 2,5kg Alterra', slang:'ψημενο φιλετο 2.5 alterra', unit:'τεμ', supplier:'Alterra' },
+  ],
+
+  // ============================================================
+  // VEGAN (ΚΤΨ)
+  // ============================================================
+  'VEGAN (ΚΤΨ)': [
+    { id:'av_v1', name:'Aviko Μπιφτέκι λαχανικών', slang:'aviko μπιφτεκι λαχανικων vegan', unit:'τεμ', supplier:'Aviko' },
+    // MrCroquette
+    { id:'mrc1', name:'Κασεροκροκέτες MrCroquette', slang:'κασεροκροκετες mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc2', name:'Spring Rolls λαχανικών MrCroquette', slang:'spring rolls λαχανικων mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc3', name:'Κροκέτες ζαμπόν/κασέρι MrCroquette', slang:'κροκετες ζαμπον κασερι mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc4', name:'Κολοκυθοκεφτέδες MrCroquette', slang:'κολοκυθοκεφτεδες mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc5', name:'Μπιφτέκι λαχανικών MrCroquette', slang:'μπιφτεκι λαχανικων mrcroquette vegan', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc6', name:'Φαλάφελ MrCroquette', slang:'φαλαφελ mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc7', name:'Σαγανάκι με Φέτα MrCroquette', slang:'σαγανακι φετα mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc8', name:'Σαγανάκι με Κεφαλοτύρι MrCroquette', slang:'σαγανακι κεφαλοτυρι mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc9', name:'Ντοματοκεφτέδες MrCroquette', slang:'ντοματοκεφτεδες mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc10', name:'Παστουρμάς MrCroquette', slang:'παστουρμας mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc11', name:'Μελιτζανοκροκέτες MrCroquette', slang:'μελιτζανοκροκετες mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc12', name:'Μελιτζανοκεφτέδες με τυρί MrCroquette', slang:'μελιτζανοκεφτεδες τυρι mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc13', name:'Sticks με τυρί Βερμίου MrCroquette', slang:'sticks τυρι βερμιου mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc14', name:'Sticks φέτα κανταΐφι MrCroquette', slang:'sticks φετα καντaιφι mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc15', name:'Sticks Mozzarella MrCroquette', slang:'sticks mozzarella mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc16', name:'Κολοκύθι με γραβιέρα MrCroquette', slang:'κολοκυθι γραβιερα mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc17', name:'Πατατοκροκέτες MrCroquette', slang:'πατατοκροκετες mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+    { id:'mrc18', name:'Spring Rolls κοτόπουλο MrCroquette', slang:'spring rolls κοτοπουλο mrcroquette', unit:'τεμ', supplier:'MrCroquette' },
+  ],
+
+  // ============================================================
+  // ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ
+  // ============================================================
+  'ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ': [
+    // Υφαντής συντήρηση
+    { id:'yf1', name:'Μπέικον φ. Υφαντής', slang:'μπεικον φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf2', name:'Πικ Νικ φ. Υφαντής', slang:'πικ νικ φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf3', name:'Γαλοπούλα φ. Υφαντής', slang:'γαλοπουλα φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf4', name:'Λουκάνικο Πεπερόνε Υφαντής', slang:'λουκανικο πεπερονε υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf5', name:'Hot Dog 17αρι Υφαντής', slang:'hot dog 17αρι υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf6', name:'Hot Dog 22αρι Υφαντής', slang:'hot dog 22αρι υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf7', name:'Vienna Υφαντής', slang:'vienna υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf8', name:'Μπριζόλα φ. Υφαντής', slang:'μπριζολα φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf9', name:'Ωμοπλάτη φ. Υφαντής', slang:'ωμοπλατη φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf10', name:'Πάριζα φ. Υφαντής', slang:'παριζα φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf11', name:'Σαλ. Πεπερόνε φ. Υφαντής', slang:'σαλαμι πεπερονε φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf12', name:'Σαλ. Αέρος φ. Υφαντής', slang:'σαλαμι αερος φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf13', name:'Βήρας φ. Υφαντής', slang:'βηρας φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf14', name:'Μπέικον ρολό φ. Υφαντής', slang:'μπεικον ρολο φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf15', name:'Της Μάρως λουκ. Υφαντής', slang:'της μαρως λουκανικο υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf16', name:'Πεπερόνε Ωρίμανσης φ. Υφαντής', slang:'πεπερονε ωριμανσης φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf17', name:'Προσούτο Υφαντής', slang:'προσουτο υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf18', name:'Πιροσκί Υφαντής', slang:'πιροσκι υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf19', name:'Μορταδέλα φ. Υφαντής', slang:'μορταδελα φ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf20', name:'Μπέικον φ. Ferrano Υφαντής', slang:'μπεικον φ ferrano υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf21', name:'Μπέικον Κύβος Υφαντής', slang:'μπεικον κυβος υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf22', name:'Μπέικον άκοπο Υφαντής', slang:'μπεικον ακοπο υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf23', name:'Μπαστούνι Πάριζα Υφαντής', slang:'μπαστουνι παριζα υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf24', name:'Μπαστούνι Πικ Νικ Υφαντής', slang:'μπαστουνι πικ νικ υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf25', name:'Μπαστούνι Αέρος Υφαντής', slang:'μπαστουνι αερος υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf26', name:'Μπαστούνι Γαλοπούλα Υφαντής', slang:'μπαστουνι γαλοπουλα υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf27', name:'Μπαστούνι Μορταδέλα Υφαντής', slang:'μπαστουνι μορταδελα υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    { id:'yf28', name:'Μπαστούνι Βήρας Υφαντής', slang:'μπαστουνι βηρας υφαντης', unit:'τεμ', supplier:'Υφαντής' },
+    // Creta Farms
+    { id:'cf1', name:'Γαλοπούλα μπαστούνι Creta Farms', slang:'γαλοπουλα μπαστουνι creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf2', name:'Γαλοπούλα φ. Creta Farms', slang:'γαλοπουλα φ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf3', name:'Πικ Νικ φ. Creta Farms', slang:'πικ νικ φ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf4', name:'Μπέικον 182 Creta Farms', slang:'μπεικον 182 creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf5', name:'Μπέικον 241 Creta Farms', slang:'μπεικον 241 creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf6', name:'Ζαμπόν φ. Creta Farms', slang:'ζαμπον φ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf7', name:'Σαλάμι Πιπερόνι φ. Creta Farms', slang:'σαλαμι πιπερονι φ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf8', name:'Κοκτέιλ Creta Farms', slang:'κοκτειλ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf9', name:'Χοιρινή Ωμοπλάτη φ. Creta Farms', slang:'χοιρινη ωμοπλατη φ creta farms', unit:'τεμ', supplier:'Creta Farms' },
+    { id:'cf10', name:'Hot Dog 17cm Creta Farms', slang:'hot dog 17cm creta farms', unit:'τεμ', supplier:'Creta Farms' },
+  ],
+
+  // ============================================================
+  // ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ
+  // ============================================================
+  'ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ': [
+    // Βιοσάλ συντήρηση
+    { id:'bs1', name:'Τυροκαυτερή Βιοσάλ', slang:'τυροκαυτερη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs2', name:'Τζατζίκι Βιοσάλ', slang:'τζατζικι βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs3', name:'Σικάγο Βιοσάλ', slang:'σικαγο βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs4', name:'Ουγγαρέζα Λευκή Βιοσάλ', slang:'ουγγαρεζα λευκη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs5', name:'Ρώσικη Βιοσάλ', slang:'ρωσικη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs6', name:'Ρώσικη Νηστίσιμη Βιοσάλ', slang:'ρωσικη νηστισιμη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs7', name:'Μαγιονέζα Βιοσάλ', slang:'μαγιονεζα βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs8', name:'Μαγιονέζα Νηστίσιμη Βιοσάλ', slang:'μαγιονεζα νηστισιμη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs9', name:'Σως μουστάρδας Βιοσάλ', slang:'σως μουσταρδας βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs10', name:'Κηπουρού Βιοσάλ', slang:'κηπουρου βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs11', name:'Pesto Βιοσάλ', slang:'pesto βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs12', name:'Πάπρικα Βιοσάλ', slang:'παπρικα βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs13', name:'Πατατοσαλάτα Βιοσάλ', slang:'πατατοσαλατα βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs14', name:'Αγιορείτικη Βιοσάλ', slang:'αγιορειτικη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs15', name:'Ταραμάς Βιοσάλ', slang:'ταραμας βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs16', name:'Ταραμάς λευκός Βιοσάλ', slang:'ταραμας λευκος βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs17', name:'J.D Βιοσάλ', slang:'j.d jd βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs18', name:'Φάβα Βιοσάλ', slang:'φαβα βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bs19', name:'Τυροκαυτερή Vegan Βιοσάλ', slang:'τυροκαυτερη vegan βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    // 3P Salads συντήρηση
+    { id:'3p_s1', name:'Μαγιονέζα με Τρούφα 900g 3P', slang:'μαγιονεζα τρουφα 900 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s2', name:'Μαγιονέζα Σιράτσα 3P', slang:'μαγιονεζα σιρατσα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s3', name:'Μαγιονέζα 2kg 3P', slang:'μαγιονεζα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s4', name:'Καβουροσαλάτα 2kg 3P', slang:'καβουροσαλατα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s5', name:'Κηπουρού Φάρμα 2kg 3P', slang:'κηπουρου φαρμα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s6', name:'Κοπανιστή Χτυπητή 2kg 3P', slang:'κοπανιστη χτυπητη 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s7', name:'Μελιτζάνα Καπνιστή 2kg 3P', slang:'μελιτζανα καπνιστη 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s8', name:'Μελιτζανοσαλάτα 3Π 2kg 3P', slang:'μελιτζανοσαλατα 3π 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s9', name:'Ουγγαρέζα 3Π 2kg 3P', slang:'ουγγαρεζα 3π 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s10', name:'Ουγγαρέζα Λευκή Smart 2kg 3P', slang:'ουγγαρεζα λευκη smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s11', name:'Παπρίκα Smart 2kg 3P', slang:'παπρικα smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s12', name:'Πατατοσαλάτα 2kg 3P', slang:'πατατοσαλατα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s13', name:'Ρώσικη Smart 2kg 3P', slang:'ρωσικη smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s14', name:'Σκόρδο Τριμμένο Πολτός 1kg 3P', slang:'σκορδο τριμμενο πολτος 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s15', name:'Σκορδαλιά 2kg 3P', slang:'σκορδαλια 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s16', name:'Τζατζίκι Smart 2kg 3P', slang:'τζατζικι smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s17', name:'Τζατζίκι Smart 5kg 3P', slang:'τζατζικι smart 5kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s18', name:'Τζατζίκι Premium 5kg 3P', slang:'τζατζικι premium 5kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s19', name:'Τονοσαλάτα 2kg 3P', slang:'τονοσαλατα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s20', name:'Τσελίγκα 2kg 3P', slang:'τσελιγκα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s21', name:'Ταραμοσαλάτα Smart 2kg 3P', slang:'ταραμοσαλατα smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s22', name:'Ταραμοσαλάτα Λευκή 2kg 3P', slang:'ταραμοσαλατα λευκη 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s23', name:'Τυροκαυτερή Smart 2kg 3P', slang:'τυροκαυτερη smart 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s24', name:'Τυροκαυτερή με Φέτα 2kg 3P', slang:'τυροκαυτερη φετα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s25', name:'Χούμους 2kg 3P', slang:'χουμους 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s26', name:'Avocado Sauce 900g 3P', slang:'avocado sauce 900 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s27', name:'Αϊόλι Sauce 3P', slang:'αιολι sauce 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s28', name:'Balsamico Dressing 2kg 3P', slang:'balsamico dressing 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s29', name:'Barbeque Sauce 2kg 3P', slang:'barbeque sauce 2kg bbq 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s30', name:'Burger Sauce (Αγγουρομαγιονέζα) 2kg 3P', slang:'burger sauce αγγουρομαγιονεζα 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s31', name:'Caesar Sauce 2kg 3P', slang:'caesar sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s32', name:'Cheddar Sauce 1,2kg 3P', slang:'cheddar sauce 1.2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s33', name:'Chicken Sauce 2kg 3P', slang:'chicken sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s34', name:'Coleslaw Sauce 2kg 3P', slang:'coleslaw sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s35', name:'Feta Sauce 2kg 3P', slang:'feta sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s36', name:'French Sauce 2kg 3P', slang:'french sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s37', name:'Golden Barbeque Sauce 2kg 3P', slang:'golden barbeque bbq sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s38', name:'Pesto alla Genovese 1kg 3P', slang:'pesto genovese 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s39', name:'Pink Sauce (Κέτσαπ) 2kg 3P', slang:'pink sauce κετσαπ 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s40', name:'Sweet Chilli Sauce 1kg 3P', slang:'sweet chilli sauce 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s41', name:'Sweet Queen Burger Sauce 1kg 3P', slang:'sweet queen burger sauce 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s42', name:'Βατόμουρο Sauce 2kg 3P', slang:'βατομουρο sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s43', name:'Καραμελωμένα Κρεμμύδια 2,3kg 3P', slang:'καραμελωμενα κρεμμυδια 2.3kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s44', name:'Κεμπάπ Sauce 1kg 3P', slang:'κεμπαπ sauce 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s45', name:'Yogurt Sauce 2kg 3P', slang:'yogurt sauce λαχανικων κρεατων 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s46', name:'Σώς Γιαουρτιού 5kg 3P', slang:'σως γιαουρτιου 5kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s47', name:'Μέλι Μουστάρδα Sauce 2kg 3P', slang:'μελι μουσταρδα sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s48', name:'Potato Sauce 2kg 3P', slang:'potato sauce 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s49', name:'Παρμεζάνα Σώς 1kg 3P', slang:'παρμεζανα σως 1kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s50', name:'Σώς Μουστάρδας 2kg 3P', slang:'σως μουσταρδας 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s51', name:'Κέτσαπ Κάρυ Σώς 3P', slang:'κετσαπ καρυ σως 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s52', name:'Sweet Curry Σώς 3P', slang:'sweet curry σως 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s53', name:'Vinegrette Sauce 3P', slang:'vinegrette sauce 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s54', name:'Lemon Sauce 3P', slang:'lemon sauce 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s55', name:'Κοκτέιλ Σώς 5kg 3P', slang:'κοκτειλ σως 5kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s56', name:'Cocktail Sauce Vegan 2kg 3P', slang:'cocktail sauce vegan 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s57', name:'Κηπουρού Φάρμα Νηστίσιμη Vegan 2kg 3P', slang:'κηπουρου φαρμα νηστισιμη vegan 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s58', name:'Μαγιονέζα Vegan 2kg 3P', slang:'μαγιονεζα vegan 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s59', name:'Μελιτζανοσαλάτα Αγιορείτικη 2kg 3P', slang:'μελιτζανοσαλατα αγιορειτικη 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s60', name:'Μουστάρδα Sauce Vegan 2kg 3P', slang:'μουσταρδα sauce vegan 2kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_s61', name:'Έδεσμα Smart 5kg 3P', slang:'εδεσμα smart 5kg γιαουρτι 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    // 3P αλίπαστα
+    { id:'3p_a1', name:'Αντζούγια (αλίπαστα) 3P', slang:'αντζουγια αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a2', name:'Γαύρος (αλίπαστα) 3P', slang:'γαυρος αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a3', name:'Ρέγγα (αλίπαστα) 3P', slang:'ρεγγα αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a4', name:'Τσιροσαλάτα (αλίπαστα) 3P', slang:'τσιροσαλατα αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a5', name:'Τονολακέρδα (αλίπαστα) 3P', slang:'τονολακερδα αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a6', name:'Σκουμπρί (αλίπαστα) 3P', slang:'σκουμπρι αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a7', name:'Σκουμπρί Vacuum (αλίπαστα) 3P', slang:'σκουμπρι vacuum αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a8', name:'Ουζομέζε (αλίπαστα) 3P', slang:'ουζομεζε αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a9', name:'Χταπόδι 3P', slang:'χταποδι 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a10', name:'Μύδια 3P', slang:'μυδια 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_a11', name:'Ανατολικός (αλίπαστα) 3P', slang:'ανατολικος αλιπαστα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    // 3P έτοιμα γεύματα
+    { id:'3p_g1', name:'Παστίτσιο 3P', slang:'παστιτσιο ετοιμο γευμα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_g2', name:'Μουσακάς 3P', slang:'μουσακας ετοιμο γευμα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_g3', name:'Ρύζι 3P', slang:'ρυζι ετοιμο γευμα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_g4', name:'Σουτζουκάκια 3P', slang:'σουτζουκακια ετοιμο γευμα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_g5', name:'Γεμιστά 3P', slang:'γεμιστα ετοιμο γευμα 3p salads', unit:'τεμ', supplier:'3P Salads' },
+  ],
+
+  // ============================================================
+  // ΤΥΡΙΑ / ΣΥΝΤΗΡΗΣΗ
+  // ============================================================
+  'ΤΥΡΙΑ / ΣΥΝΤΗΡΗΣΗ': [
+    // Τρονικ
+    { id:'tr1', name:'Γκούντα φ. Τρονικ', slang:'γκουντα φ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr2', name:'Κεφαλοτύρι τριμ. Τρονικ', slang:'κεφαλοτυρι τριμ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr3', name:'Mozzarella τριμ. Τρονικ', slang:'mozzarella τριμ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr4', name:'Καπνιστή γκούντα Τρονικ', slang:'καπνιστη γκουντα τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr5', name:'Καπνιστό σαγανάκι Τρονικ', slang:'καπνιστο σαγανακι τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr6', name:'Μανούρι Τρονικ', slang:'μανουρι τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr7', name:'Παρμεζάνα τριμ. Τρονικ', slang:'παρμεζανα τριμ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr8', name:'Παρμεζάνα Flakes Τρονικ', slang:'παρμεζανα flakes τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr9', name:'Σαγανάκι φ. Τρονικ', slang:'σαγανακι φ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr10', name:'Ενταμ φ. Τρονικ', slang:'ενταμ φ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr11', name:'Γκούντα τριμ. Τρονικ', slang:'γκουντα τριμ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr12', name:'Τσένταρ φ. Τρονικ', slang:'τσενταρ φ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr13', name:'Λευκό τυρί Τρονικ', slang:'λευκο τυρι τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr14', name:'Φέτα Τρονικ', slang:'φετα τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr15', name:'Παρμεζάνα 1/8 Τρονικ', slang:'παρμεζανα 1/8 τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr16', name:'Regato Τρονικ', slang:'regato τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr17', name:'Μπαστούνι Mozzarella Τρονικ', slang:'μπαστουνι mozzarella τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr18', name:'Μπαστούνι Γκούντα Τρονικ', slang:'μπαστουνι γκουντα τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr19', name:'Μπαστούνι Σαγανάκι Τρονικ', slang:'μπαστουνι σαγανακι τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    { id:'tr20', name:'Μπαστούνι Ενταμ Τρονικ', slang:'μπαστουνι ενταμ τρονικ', unit:'τεμ', supplier:'Τρονικ' },
+    // Αρτιμα
+    { id:'art1', name:'Μπαστούνι ημίσκληρο Αρτιμα', slang:'μπαστουνι ημισκληρο αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art2', name:'Μπαστούνι Ελάρτι Γραβιέρα Αρτιμα', slang:'μπαστουνι ελαρτι γραβιερα αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art3', name:'Mozzarella Fresh Αρτιμα', slang:'mozzarella fresh αρτιμα', unit:'κιβ', supplier:'Αρτιμα' },
+    { id:'art4', name:'Τυρί κρέμα Αρτιμα', slang:'τυρι κρεμα αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art5', name:'Ταλαγάνι Αρτιμα', slang:'ταλαγανι αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art6', name:'Χαλούμι Αρτιμα', slang:'χαλουμι αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art7', name:'Χαλούμι Μπαστούνι Αρτιμα', slang:'χαλουμι μπαστουνι αρτιμα', unit:'τεμ', supplier:'Αρτιμα' },
+    { id:'art8', name:'Μπουράτα Αρτιμα', slang:'μπουρατα αρτιμα', unit:'κιβ', supplier:'Αρτιμα' },
+    // Αρβανίτης
+    { id:'arv1', name:'Φέτα Αρβανίτη', slang:'φετα αρβανιτη', unit:'τεμ', supplier:'Αρβανίτης' },
+    { id:'arv2', name:'Ντόπιο Αρβανίτη', slang:'ντοπιο αρβανιτη', unit:'τεμ', supplier:'Αρβανίτης' },
+    { id:'arv3', name:'Σαγανάκι φέτα Αρβανίτη', slang:'σαγανακι φετα αρβανιτη', unit:'τεμ', supplier:'Αρβανίτης' },
+    { id:'arv4', name:'Δοχείο λευκό τυρί Αρβανίτη', slang:'δοχειο λευκο τυρι αρβανιτη', unit:'τεμ', supplier:'Αρβανίτης' },
+  ],
+
+  // ============================================================
+  // ΓΑΛΑΚΤΟΚΟΜΙΚΑ / ΣΥΝΤΗΡΗΣΗ
+  // ============================================================
+  'ΓΑΛΑΚΤΟΚΟΜΙΚΑ': [
+    { id:'ld1', name:'Βούτυρο 2,5kg Leader', slang:'βουτυρο 2.5kg leader', unit:'τεμ', supplier:'Leader' },
+    { id:'ld2', name:'Βούτυρο 250gr Leader', slang:'βουτυρο 250gr leader', unit:'τεμ', supplier:'Leader' },
+    { id:'ld3', name:'Βούτυρο 10gr Leader', slang:'βουτυρο 10gr leader μεριδες', unit:'κιβ', supplier:'Leader' },
+    { id:'ld4', name:'Μαργαρίνη Leader', slang:'μαργαρινη leader', unit:'τεμ', supplier:'Leader' },
+    { id:'ld5', name:'Μαργαρίνη μερίδες Leader', slang:'μαργαρινη μεριδες leader', unit:'κιβ', supplier:'Leader' },
+    { id:'ld6', name:'Κρέμα γάλακτος ROYAL Leader', slang:'κρεμα γαλακτος royal πορτοκαλι leader', unit:'τεμ', supplier:'Leader' },
+    { id:'ld7', name:'Κρέμα γάλακτος Meggle Leader', slang:'κρεμα γαλακτος meggle leader', unit:'τεμ', supplier:'Leader' },
+  ],
+
+  // ============================================================
+  // ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ
+  // ============================================================
+  'ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ': [
+    // 3P Salads ξηρό
+    { id:'3p_x1', name:'Κέτσαπ Μπετόνι 4kg 3P', slang:'κετσαπ μπετονι 4kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x2', name:'Κέτσαπ Στικ (200τεμ) 3P', slang:'κετσαπ στικ 200τεμ 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x3', name:'Κέτσαπ Catering 4kg 3P', slang:'κετσαπ catering 4kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x4', name:'Μουστάρδα Μπετόνι 4kg 3P', slang:'μουσταρδα μπετονι 4kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x5', name:'Μουστάρδα Στικ (200τεμ) 3P', slang:'μουσταρδα στικ 200τεμ 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x6', name:'Μουστάρδα Catering 4kg 3P', slang:'μουσταρδα catering 4kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x7', name:'Μουστάρδα Κούβας 3P', slang:'μουσταρδα κουβας 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x8', name:'Μαγιονέζα Catering 5kg 3P', slang:'μαγιονεζα catering 5kg 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x9', name:'Μαγιονέζα Ho.Re.Ca. 5lt 3P', slang:'μαγιονεζα horeca 5lt 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x10', name:'Μαγιονέζα Premium 5lt 3P', slang:'μαγιονεζα premium 5lt 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x11', name:'Μαγιονέζα Golden 5lt 3P', slang:'μαγιονεζα golden 5lt 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    { id:'3p_x12', name:'Μαγιονέζα Στικ (200τεμ) 3P', slang:'μαγιονεζα στικ 200τεμ 3p salads', unit:'τεμ', supplier:'3P Salads' },
+    // Βιοσάλ αποθήκη
+    { id:'bsx1', name:'Must Mayo Βιοσάλ', slang:'must mayo βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+    { id:'bsx2', name:'Μαγιονέζα Λευκή Βιοσάλ', slang:'μαγιονεζα λευκη βιοσαλ', unit:'τεμ', supplier:'Βιοσάλ' },
+  ],
+
+  // ============================================================
+  // ΠΡΑΛΙΝΕΣ / ΓΛΥΚΑ ΑΠΟΘΗΚΗ
+  // ============================================================
+  'ΠΡΑΛΙΝΕΣ / ΓΛΥΚΑ ΑΠΟΘΗΚΗ': [
+    { id:'af1', name:'Πραλίνα 13kg Agrifreda', slang:'πραλινα 13kg agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af2', name:'Buono Agrifreda', slang:'buono agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af3', name:'Ψησίματος Agrifreda', slang:'ψησιματος agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af4', name:'Μπανάνα Agrifreda', slang:'μπανανα agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af5', name:'Λευκή Agrifreda', slang:'λευκη agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af6', name:'Σπασμένο φουντούκι Agrifreda', slang:'σπασμενο φουντουκι agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af7', name:'Φράουλα Agrifreda', slang:'φραουλα agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af8', name:'Φιστίκι Agrifreda', slang:'φιστικι agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af9', name:'Μαύρο μπισκότο Agrifreda', slang:'μαυρο μπισκοτο agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af10', name:'Speculoos Agrifreda', slang:'speculoos agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af11', name:'Κεράσι Agrifreda', slang:'κερασι agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af12', name:'Βύσσινο Agrifreda', slang:'βυσσινο agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af13', name:'Dubai Agrifreda', slang:'dubai agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af14', name:'Μερίδες μέλι Agrifreda', slang:'μεριδες μελι agrifreda', unit:'κιβ', supplier:'Agrifreda' },
+    { id:'af15', name:'Μερίδες κεράσι Agrifreda', slang:'μεριδες κερασι agrifreda', unit:'κιβ', supplier:'Agrifreda' },
+    { id:'af16', name:'Μερίδες φράουλα Agrifreda', slang:'μεριδες φραουλα agrifreda', unit:'κιβ', supplier:'Agrifreda' },
+    { id:'af17', name:'Μερίδες πραλίνα Agrifreda', slang:'μεριδες πραλινα agrifreda', unit:'κιβ', supplier:'Agrifreda' },
+    { id:'af18', name:'Μπισκότο μαύρο τρίμμα Agrifreda', slang:'μπισκοτο μαυρο τριμμα agrifreda', unit:'κιβ', supplier:'Agrifreda' },
+    { id:'af19', name:'Χαλβάς βανίλια Agrifreda', slang:'χαλβας βανιλια agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af20', name:'Χαλβάς κακάο Agrifreda', slang:'χαλβας κακαο agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af21', name:'Σιρόπι σοκολάτας Agrifreda', slang:'σιροπι σοκολατας agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af22', name:'Σιρόπι καραμέλας Agrifreda', slang:'σιροπι καραμελας agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+    { id:'af23', name:'Σιρόπι βύσσινο Agrifreda', slang:'σιροπι βυσσινο agrifreda', unit:'τεμ', supplier:'Agrifreda' },
+  ],
+
+  // ============================================================
+  // ΡΥΖΙΑ / ΑΠΟΘΗΚΗ
+  // ============================================================
+  'ΡΥΖΙΑ': [
+    { id:'rz1', name:'Μπασμάτι 5kg', slang:'μπασματι ρυζι 5kg', unit:'τεμ', supplier:'—' },
+    { id:'rz2', name:'Αρμπόριο 5kg', slang:'αρμποριο ρυζι 5kg', unit:'τεμ', supplier:'—' },
+    { id:'rz3', name:'Άγριο 5kg', slang:'αγριο ρυζι 5kg', unit:'τεμ', supplier:'—' },
+    { id:'rz4', name:'Carolina 5kg', slang:'carolina ρυζι 5kg', unit:'τεμ', supplier:'—' },
+    { id:'rz5', name:'Κίτρινο 5kg', slang:'κιτρινο ρυζι 5kg', unit:'τεμ', supplier:'—' },
+    { id:'rz6', name:'Φάβα 5kg', slang:'φαβα ρυζι 5kg', unit:'τεμ', supplier:'—' },
+  ],
+
+  'ΓΛΥΚΑ / ΠΑΓΩΤΑ': [],
+  'ΨΑΡΙΑ / ΘΑΛΑΣΣΙΝΑ': [],
+};
+
+// Αρχικό ιστορικό πελατών
+const DEFAULT_CLIENTS = [
+  {
+    id: 'sel1',
+    name: 'Σελήνης Γιώργος',
+    shop: 'Break House',
+    city: 'Αριδαία',
+    route: 'poli',
+    routeLabel: 'Αριδαία — Πόλη',
+    history: {
+      'ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ': { yf20:3, yf3:4, yf2:5, yf1:2, yf11:4, yf13:1, yf6:2 },
+      'ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ':   { '3p_s48':3, '3p_s29':1, bs12:1, '3p_s43':1 },
+      'ΚΡΕΑΤΙΚΑ':               { yf_k1:5, alt1:1, vi4:1, yf5:2 },
+      'ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ':   { sl35:2, sl37:1 },
+      'ΠΑΤΑΤΕΣ':                { ag4:1, mc1:2, ec2:2, lw1:1 },
+      'ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ':{ '3p_x1':1, '3p_x3':1, '3p_x4':1, '3p_x8':2, bsx1:1, bsx2:1 },
+    }
+  },
+];
+
+const ROUTES = [
+  { key: 'poli',   label: 'Αριδαία — Πόλη',   cls: 'poli' },
+  { key: 'xoria',  label: 'Αριδαία — Χωριά',  cls: 'xoria' },
+];

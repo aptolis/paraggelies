@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1D9E75">
+  <title>Παραγγελίες</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 1: ΛΙΣΤΑ ΠΕΛΑΤΩΝ
+       ====================================================== -->
+  <div id="s-clients" class="screen active">
+    <div class="top-bar">
+      <div style="flex:1">
+        <div class="top-bar-title"><i class="ti ti-clipboard-list" style="color:var(--green);margin-right:6px" aria-hidden="true"></i>Παραγγελίες</div>
+      </div>
+      <button class="btn-sec" onclick="show('s-backup')" style="padding:7px 10px">
+        <i class="ti ti-settings" style="font-size:16px" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="body-pad">
+      <div class="search-wrap">
+        <input type="text" placeholder="Αναζήτηση πελάτη ή καταστήματος..." oninput="filterClients(this.value)">
+        <i class="ti ti-search" aria-hidden="true"></i>
+      </div>
+      <div id="client-list"></div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 2: ΠΑΡΑΓΓΕΛΙΑ
+       ====================================================== -->
+  <div id="s-order" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="show('s-clients')" aria-label="Πίσω">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div class="top-bar-title" id="ord-cname"></div>
+        <div class="top-bar-sub" id="ord-csub"></div>
+      </div>
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" aria-label="Μικρόφωνο">
+        <i class="ti ti-microphone" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div id="voice-hint" style="display:none;background:#f0faf5;border-bottom:0.5px solid #ccc;padding:6px;text-align:center;font-size:12px;color:var(--green)"></div>
+    <div class="body-pad">
+      <div id="order-products"></div>
+      <div id="quarantine-section"></div>
+      <div style="height:70px"></div>
+    </div>
+    <div class="bottom-bar">
+      <button class="btn-sec" onclick="show('s-catalog')">
+        <i class="ti ti-package" aria-hidden="true"></i> Κατάλογος
+      </button>
+      <button class="btn-sec" onclick="openNewProd()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Νέο
+      </button>
+      <button class="btn-send" onclick="goSummary()">
+        Επιβεβαίωση <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 3: ΚΑΤΑΛΟΓΟΣ
+       ====================================================== -->
+  <div id="s-catalog" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="show('s-order')" aria-label="Πίσω">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div>
+        <div class="top-bar-title">Κατάλογος</div>
+        <div class="top-bar-sub">Επίλεξε για προσθήκη</div>
+      </div>
+    </div>
+    <div class="body-pad">
+      <div class="search-wrap">
+        <input type="text" placeholder="Αναζήτηση..." oninput="filterCatalog(this.value)" id="cat-search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+      </div>
+      <div id="catalog-list"></div>
+      <button class="add-sel-btn" id="add-sel-btn" onclick="addFromCatalog()" style="display:none">
+        <i class="ti ti-check" aria-hidden="true"></i> Πρόσθεσε επιλεγμένα (<span id="sel-count">0</span>)
+      </button>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 4: ΝΕΟ ΠΡΟΪΟΝ
+       ====================================================== -->
+  <div id="s-newprod" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="show('s-order')" aria-label="Πίσω">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div>
+        <div class="top-bar-title">Νέο προϊόν</div>
+        <div class="top-bar-sub">Αναζήτηση ή καραντίνα</div>
+      </div>
+    </div>
+    <div class="body-pad">
+      <div class="field-label">Αναζήτηση στον κατάλογο:</div>
+      <div class="search-wrap" style="margin-bottom:6px">
+        <input type="text" id="np-search" placeholder="π.χ. agria, μπέικον, creta..." oninput="liveSearch(this.value)">
+        <i class="ti ti-search" aria-hidden="true"></i>
+      </div>
+      <div class="live-results" id="live-results"></div>
+
+      <div class="divider">
+        <div style="font-size:13px;font-weight:500;color:#555;margin-bottom:12px">
+          <i class="ti ti-clock" style="font-size:14px;color:var(--amber-dark)" aria-hidden="true"></i>
+          Δεν υπάρχει; Πρόσθεσε στην καραντίνα:
+        </div>
+        <div class="warn-box">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          Θα μπει σε καραντίνα μέχρι επιβεβαίωση από το λογιστήριο
+        </div>
+
+        <div class="field-label">Κατηγορία <span style="color:#e00">*</span></div>
+        <select class="field-input" id="np-cat" onchange="checkQReady()">
+          <option value="">Επίλεξε κατηγορία...</option>
+          <option>ΠΑΤΑΤΕΣ</option>
+          <option>ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ</option>
+          <option>ΠΙΤΕΣ</option>
+          <option>ΚΡΕΑΤΙΚΑ</option>
+          <option>VEGAN (ΚΤΨ)</option>
+          <option>ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ</option>
+          <option>ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ</option>
+          <option>ΤΥΡΙΑ / ΣΥΝΤΗΡΗΣΗ</option>
+          <option>ΓΑΛΑΚΤΟΚΟΜΙΚΑ</option>
+          <option>ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ</option>
+          <option>ΠΡΑΛΙΝΕΣ / ΓΛΥΚΑ ΑΠΟΘΗΚΗ</option>
+          <option>ΡΥΖΙΑ</option>
+          <option>ΓΛΥΚΑ / ΠΑΓΩΤΑ</option>
+          <option>ΨΑΡΙΑ / ΘΑΛΑΣΣΙΝΑ</option>
+        </select>
+
+        <div class="field-label">Όνομα προϊόντος <span style="color:#e00">*</span></div>
+        <input type="text" class="field-input" id="np-name" placeholder="π.χ. Κέτσαπ Heinz 3kg" oninput="checkQReady()">
+
+        <div class="field-label">Αργκό / παρατσούκλι (προαιρετικό)</div>
+        <input type="text" class="field-input" id="np-slang" placeholder="π.χ. heinz">
+
+        <div class="field-label">Μονάδα μέτρησης:</div>
+        <div class="np-unit-seg" id="np-unit-seg">
+          <button onclick="setNpUnit('κιβ',0)">Κιβώτια</button>
+          <button onclick="setNpUnit('κιλά',1)">Κιλά</button>
+          <button onclick="setNpUnit('τεμ',2)" style="background:#1D9E75;color:#fff;font-weight:600">Σακ/Τεμ</button>
+        </div>
+
+        <div class="field-label">Ποσότητα:</div>
+        <input type="number" class="field-input" id="np-qty" min="1" value="1" style="width:100px">
+
+        <div class="modal-acts">
+          <button class="btn-cancel" onclick="show('s-order')">Ακύρωση</button>
+          <button id="btn-q" onclick="addNewProd()"
+            style="flex:1;padding:11px;border-radius:var(--radius);font-size:14px;cursor:not-allowed;border:none;background:#e5e5e5;color:#aaa">
+            <i class="ti ti-clock" aria-hidden="true"></i> Προσθήκη στην καραντίνα
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 5: ΕΠΙΒΕΒΑΙΩΣΗ
+       ====================================================== -->
+  <div id="s-summary" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="show('s-order')" aria-label="Πίσω">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div>
+        <div class="top-bar-title" id="sum-cname"></div>
+        <div class="top-bar-sub" id="sum-csub"></div>
+      </div>
+    </div>
+    <div class="body-pad">
+      <div id="sum-date" style="font-size:12px;color:#888;margin-bottom:14px"></div>
+      <div id="sum-content"></div>
+      <div style="height:80px"></div>
+    </div>
+    <div class="bottom-bar">
+      <button class="btn-sec" onclick="copyOrder()">
+        <i class="ti ti-copy" aria-hidden="true"></i> Αντιγραφή
+      </button>
+      <button class="btn-send" onclick="copyOrder();showToast('Έτοιμο!')">
+        <i class="ti ti-send" aria-hidden="true"></i> Αποστολή
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       ΟΘΟΝΗ 6: BACKUP / ΡΥΘΜΙΣΕΙΣ
+       ====================================================== -->
+  <div id="s-backup" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="show('s-clients')" aria-label="Πίσω">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div class="top-bar-title">Ρυθμίσεις & Backup</div>
+    </div>
+    <div class="body-pad">
+
+      <div class="section-title">Αποθήκευση δεδομένων</div>
+      <div class="backup-card">
+        <div class="backup-title"><i class="ti ti-device-floppy" style="color:var(--green)" aria-hidden="true"></i> Αποθήκευση αλλαγών</div>
+        <div class="backup-desc">Αποθηκεύει όλες τις αλλαγές (νέοι πελάτες, νέα προϊόντα, τροποποιήσεις) στο κινητό σου.</div>
+        <button class="btn-backup green" onclick="saveData()">
+          <i class="ti ti-check" aria-hidden="true"></i> Αποθήκευση τώρα
+        </button>
+      </div>
+
+      <div class="section-title">Backup & Restore</div>
+      <div class="backup-card">
+        <div class="backup-title"><i class="ti ti-download" style="color:#555" aria-hidden="true"></i> Εξαγωγή Backup</div>
+        <div class="backup-desc">Δημιουργεί αρχείο JSON με όλα τα δεδομένα. Αποθήκευσέ το στο email ή Google Drive για ασφάλεια.</div>
+        <button class="btn-backup outline" onclick="exportBackup()">
+          <i class="ti ti-download" aria-hidden="true"></i> Κατέβασε backup
+        </button>
+      </div>
+
+      <div class="backup-card">
+        <div class="backup-title"><i class="ti ti-upload" style="color:#555" aria-hidden="true"></i> Επαναφορά από Backup</div>
+        <div class="backup-desc">Φόρτωσε ένα αρχείο backup για να επαναφέρεις τα δεδομένα σου (π.χ. μετά από αλλαγή κινητού).</div>
+        <button class="btn-backup outline" onclick="document.getElementById('restore-input').click()">
+          <i class="ti ti-upload" aria-hidden="true"></i> Φόρτωσε backup
+        </button>
+        <input type="file" id="restore-input" accept=".json" style="display:none">
+      </div>
+
+      <div class="section-title">Εφαρμογή</div>
+      <div class="backup-card">
+        <div class="backup-title">Παραγγελίες App</div>
+        <div class="backup-desc">Έκδοση 1.0 · Για να προσθέσεις νέους πελάτες ή να επεξεργαστείς προϊόντα, επικοινώνησε με τον προγραμματιστή.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Scripts -->
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
