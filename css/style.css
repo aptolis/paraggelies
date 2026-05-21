@@ -340,3 +340,11 @@ select.field-input { cursor: pointer; }
   text-transform: uppercase; letter-spacing: 0.8px;
   margin: 20px 0 8px;
 }
+
+/* Εκκρεμής παραγγελία badge */
+.pending-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 10px; margin-left: 6px; vertical-align: middle;
+  background: #FAEEDA; color: #633806;
+}
