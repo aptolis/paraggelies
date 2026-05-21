@@ -1,5 +1,5 @@
 // ============================================================
-// ΚΥΡΙΑ ΛΟΓΙΚΗ ΕΦΑΡΜΟΓΗΣ — v1.1
+// ΚΥΡΙΑ ΛΟΓΙΚΗ ΕΦΑΡΜΟΓΗΣ — v1.2
 // ============================================================
 
 const UNITS = ['κιβ', 'κιλά', 'τεμ'];
@@ -7,25 +7,45 @@ const ULABELS = { 'κιβ': 'Κιβ', 'κιλά': 'Κιλά', 'τεμ': 'Σακ/
 const STY_ON  = 'padding:4px 9px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:#1D9E75;color:#fff;transition:all 0.15s';
 const STY_OFF = 'padding:4px 9px;font-size:11px;font-weight:500;border:none;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all 0.15s';
 
+// Χρώματα ζώνης για αντσεκάριστες γραμμές
+const ZONE_ROW_COLORS = {
+  kty: { bg: '#EFF6FD', border: '#B5D4F4' },
+  syn: { bg: '#F0FAF5', border: '#9FE1CB' },
+  apo: { bg: '#F7F6F2', border: '#D3D1C7' },
+};
+
 let cur = null;
-let orderState = {};
+let orderState = {};    // { pid: { on, qty, unit } }
 let quarantine = [];
 let catalogSelected = new Set();
 let npUnit = 'τεμ';
 let micOn = false, recog = null;
 let currentScreen = 's-clients';
 
+// Εκκρεμείς παραγγελίες ανά πελάτη: { clientId: { orderState, quarantine } }
+let pendingOrders = {};
+
 // ============================================================
-// ΑΠΟΘΗΚΕΥΣΗ ΤΡΕΧΟΥΣΑΣ ΚΑΤΑΣΤΑΣΗΣ (session)
+// ΑΠΟΘΗΚΕΥΣΗ SESSION
 // ============================================================
 
 function saveSession() {
   try {
+    // Αποθήκευση εκκρεμούς παραγγελίας για τον τρέχοντα πελάτη
+    if (cur) {
+      const hasItems = Object.values(orderState).some(s => s.on) || quarantine.length > 0;
+      if (hasItems) {
+        pendingOrders[cur.id] = { orderState: JSON.parse(JSON.stringify(orderState)), quarantine: JSON.parse(JSON.stringify(quarantine)) };
+      } else {
+        delete pendingOrders[cur.id];
+      }
+    }
     const session = {
       screen: currentScreen,
       clientId: cur ? cur.id : null,
-      orderState: orderState,
-      quarantine: quarantine,
+      orderState,
+      quarantine,
+      pendingOrders,
     };
     localStorage.setItem('orderapp_session', JSON.stringify(session));
   } catch(e) {}
@@ -36,13 +56,13 @@ function restoreSession() {
     const raw = localStorage.getItem('orderapp_session');
     if (!raw) return false;
     const session = JSON.parse(raw);
+    pendingOrders = session.pendingOrders || {};
     if (!session.clientId) return false;
     const client = window.CLIENTS.find(c => c.id === session.clientId);
     if (!client) return false;
     cur = client;
     orderState = session.orderState || {};
     quarantine = session.quarantine || [];
-    // Ενημέρωση header
     document.getElementById('ord-cname').textContent = cur.name;
     document.getElementById('ord-csub').innerHTML =
       `<i class="ti ti-building-store" style="font-size:11px" aria-hidden="true"></i> ${cur.shop}
@@ -50,9 +70,8 @@ function restoreSession() {
     document.getElementById('sum-cname').textContent = cur.name;
     document.getElementById('sum-csub').textContent = `${cur.shop} — ${cur.routeLabel}`;
     renderOrder();
-    // Επιστροφή στην οθόνη παραγγελίας (όχι summary — μπορεί να μην έχει νόημα)
-    const targetScreen = session.screen === 's-summary' ? 's-order' : (session.screen || 's-order');
-    show(targetScreen, false);
+    const target = session.screen === 's-summary' ? 's-order' : (session.screen || 's-order');
+    show(target, false);
     return true;
   } catch(e) { return false; }
 }
@@ -67,6 +86,7 @@ function show(id, doSave = true) {
   window.scrollTo(0, 0);
   currentScreen = id;
   if (doSave) saveSession();
+  if (id === 's-clients') filterClients('');
 }
 
 function openNewProd() {
@@ -107,7 +127,7 @@ function checkQReady() {
 // ============================================================
 
 function filterClients(q) {
-  const f = q.toLowerCase();
+  const f = (q || '').toLowerCase();
   const filtered = window.CLIENTS.filter(c =>
     c.name.toLowerCase().includes(f) ||
     c.shop.toLowerCase().includes(f) ||
@@ -124,10 +144,16 @@ function filterClients(q) {
     html += `<div class="route-title route-${r.cls}"><i class="ti ti-route" aria-hidden="true"></i> ${r.label}</div>`;
     byRoute[r.key].forEach(c => {
       const initials = c.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const hasPending = pendingOrders[c.id] &&
+        (Object.values(pendingOrders[c.id].orderState || {}).some(s => s.on) ||
+         (pendingOrders[c.id].quarantine || []).length > 0);
       html += `<div class="client-card" onclick="selectClient('${c.id}')">
         <div class="avatar av-${r.cls}">${initials}</div>
         <div style="flex:1;min-width:0">
-          <div class="client-name">${c.name}</div>
+          <div class="client-name">
+            ${c.name}
+            ${hasPending ? '<span class="pending-badge"><i class="ti ti-clock" aria-hidden="true"></i> Εκκρεμής</span>' : ''}
+          </div>
           <div class="client-meta">
             <i class="ti ti-building-store" style="font-size:11px" aria-hidden="true"></i> ${c.shop}
             &nbsp;·&nbsp;
@@ -147,22 +173,36 @@ function filterClients(q) {
 // ============================================================
 
 function selectClient(id) {
+  // Αποθήκευση τρέχουσας παραγγελίας πριν αλλάξουμε πελάτη
+  if (cur) saveSession();
+
   cur = window.CLIENTS.find(c => c.id === id);
   if (!cur) return;
+
   document.getElementById('ord-cname').textContent = cur.name;
   document.getElementById('ord-csub').innerHTML =
     `<i class="ti ti-building-store" style="font-size:11px" aria-hidden="true"></i> ${cur.shop}
      &nbsp;·&nbsp; <span class="rb rb-${cur.route}">${cur.routeLabel}</span>`;
   document.getElementById('sum-cname').textContent = cur.name;
   document.getElementById('sum-csub').textContent = `${cur.shop} — ${cur.routeLabel}`;
-  orderState = {};
-  quarantine = [];
-  Object.entries(cur.history || {}).forEach(([cat, items]) => {
-    Object.entries(items).forEach(([pid, qty]) => {
-      const p = getProd(pid);
-      if (p) orderState[pid] = { on: true, qty, unit: p.unit };
+
+  // Επαναφορά εκκρεμούς παραγγελίας αν υπάρχει
+  if (pendingOrders[cur.id]) {
+    orderState = JSON.parse(JSON.stringify(pendingOrders[cur.id].orderState || {}));
+    quarantine = JSON.parse(JSON.stringify(pendingOrders[cur.id].quarantine || []));
+  } else {
+    // Νέα παραγγελία: ΟΛΑ ΞΕΚΙΝΟΥΝ ΞΕΤΣΕΚΑΡΑ
+    // Φορτώνουμε ιστορικό αλλά με on:false
+    orderState = {};
+    quarantine = [];
+    Object.entries(cur.history || {}).forEach(([cat, items]) => {
+      Object.entries(items).forEach(([pid, qty]) => {
+        const p = getProd(pid);
+        if (p) orderState[pid] = { on: false, qty, unit: p.unit };
+      });
     });
-  });
+  }
+
   renderOrder();
   show('s-order');
 }
@@ -179,6 +219,7 @@ function unitSegHTML(pid, au) {
 }
 
 function renderOrder() {
+  if (!cur) return;
   const h = cur.history || {};
   let zHTML = { kty: '', syn: '', apo: '' };
 
@@ -190,27 +231,34 @@ function renderOrder() {
     );
     if (!showP.length) return;
     const zk = getZone(cat);
+    const zc = ZONE_ROW_COLORS[zk] || ZONE_ROW_COLORS.apo;
     zHTML[zk] += `<div class="cat-title">${cat}</div>`;
     showP.forEach(p => {
       const inH = !!(h[cat] || {})[p.id];
       const st = orderState[p.id] || { on: false, qty: (h[cat] || {})[p.id] || 1, unit: p.unit };
       const on = st.on;
+
+      // Στυλ γραμμής: τσεκαρισμένο=πράσινο, ξετσεκάριστο=χρώμα ζώνης
+      const rowStyle = on
+        ? 'border-color:#1D9E75;background:#E1F5EE'
+        : `border-color:${zc.border};background:${zc.bg}`;
+
       zHTML[zk] += `
-        <div class="prow${on ? ' ordered' : ' deselected'}" id="row-${p.id}">
+        <div class="prow" style="${rowStyle}" id="row-${p.id}">
           <button class="check-btn${on ? ' on' : ''}" onclick="toggleP('${p.id}')" aria-label="${on ? 'Απενεργοποίηση' : 'Ενεργοποίηση'}">
-            <i class="ti ${on ? 'ti-check' : 'ti-x'}" aria-hidden="true"></i>
+            <i class="ti ${on ? 'ti-check' : 'ti-plus'}" aria-hidden="true"></i>
           </button>
           <div style="flex:1;min-width:0">
-            <div class="pname">${p.name}
+            <div class="pname" style="color:${on ? '#1a1a1a' : '#444'}">${p.name}
               ${p.supplier && p.supplier !== '—' ? `<span class="sup-badge">${p.supplier}</span>` : ''}
-              <span class="badge ${inH ? 'b-hist' : 'b-new'}">${inH ? 'ιστορικό' : 'νέο'}</span>
+              ${inH ? '<span class="badge b-hist">ιστορικό</span>' : '<span class="badge b-new">νέο</span>'}
             </div>
             <div class="unit-seg" id="useg-${p.id}">${unitSegHTML(p.id, st.unit)}</div>
           </div>
           <div class="qty-ctrl">
-            <button class="qbtn" onclick="chQty('${p.id}',-1)" ${!on ? 'disabled' : ''} id="qm-${p.id}">−</button>
+            <button class="qbtn" onclick="chQty('${p.id}',-1)" id="qm-${p.id}">−</button>
             <span class="qdisplay" id="qty-${p.id}">${st.qty}</span>
-            <button class="qbtn" onclick="chQty('${p.id}',1)" ${!on ? 'disabled' : ''} id="qp-${p.id}">+</button>
+            <button class="qbtn" onclick="chQty('${p.id}',1)" id="qp-${p.id}">+</button>
           </div>
         </div>`;
     });
@@ -235,22 +283,13 @@ function renderOrder() {
 function setUnit(pid, unit) {
   if (!orderState[pid]) {
     const p = getProd(pid);
-    orderState[pid] = { on: true, qty: 1, unit: p.unit };
+    orderState[pid] = { on: false, qty: 1, unit: p.unit };
   }
   orderState[pid].unit = unit;
-  orderState[pid].on = true;
   UNITS.forEach(u => {
     const b = document.getElementById(`ubtn-${pid}-${u}`);
     if (b) b.style.cssText = u === unit ? STY_ON : STY_OFF;
   });
-  const row = document.getElementById('row-' + pid);
-  if (row) row.className = 'prow ordered';
-  const cb = row && row.querySelector('.check-btn');
-  if (cb) { cb.className = 'check-btn on'; cb.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>'; }
-  const qm = document.getElementById('qm-' + pid);
-  const qp = document.getElementById('qp-' + pid);
-  if (qm) qm.disabled = false;
-  if (qp) qp.disabled = false;
   saveSession();
 }
 
@@ -261,27 +300,38 @@ function toggleP(pid) {
   if (!orderState[pid]) orderState[pid] = { on: false, qty: (h[cat] || {})[pid] || 1, unit: p.unit };
   orderState[pid].on = !orderState[pid].on;
   const on = orderState[pid].on;
+  const zk = getZone(cat);
+  const zc = ZONE_ROW_COLORS[zk] || ZONE_ROW_COLORS.apo;
+
   const row = document.getElementById('row-' + pid);
-  if (row) row.className = `prow ${on ? 'ordered' : 'deselected'}`;
+  if (row) {
+    row.style.borderColor = on ? '#1D9E75' : zc.border;
+    row.style.background  = on ? '#E1F5EE' : zc.bg;
+  }
   const cb = row && row.querySelector('.check-btn');
   if (cb) {
     cb.className = `check-btn${on ? ' on' : ''}`;
-    cb.innerHTML = `<i class="ti ${on ? 'ti-check' : 'ti-x'}" aria-hidden="true"></i>`;
+    cb.innerHTML = `<i class="ti ${on ? 'ti-check' : 'ti-plus'}" aria-hidden="true"></i>`;
   }
-  const qm = document.getElementById('qm-' + pid);
-  const qp = document.getElementById('qp-' + pid);
-  if (qm) qm.disabled = !on;
-  if (qp) qp.disabled = !on;
+  const pnameEl = row && row.querySelector('.pname');
+  if (pnameEl) pnameEl.style.color = on ? '#1a1a1a' : '#444';
+
   saveSession();
 }
 
 function chQty(pid, d) {
-  if (!orderState[pid]) return;
+  if (!orderState[pid]) {
+    const p = getProd(pid);
+    const h = cur.history || {};
+    const cat = getCatOfProd(pid);
+    orderState[pid] = { on: false, qty: (h[cat] || {})[pid] || 1, unit: p.unit };
+  }
   orderState[pid].qty = Math.max(1, orderState[pid].qty + d);
   const el = document.getElementById('qty-' + pid);
   if (el) el.textContent = orderState[pid].qty;
   saveSession();
 }
+
 function chQQty(i, d) {
   quarantine[i].qty = Math.max(1, quarantine[i].qty + d);
   renderQuarantine();
@@ -296,7 +346,7 @@ function renderQuarantine() {
       <span class="zone-label" style="color:#633806">Καραντίνα — αναμένει επιβεβαίωση</span>
     </div><div class="zone-body">`;
   quarantine.forEach((p, i) => {
-    html += `<div class="prow ordered" style="border-color:#EF9F27">
+    html += `<div class="prow" style="border-color:#EF9F27;background:#FAEEDA">
       <div style="flex:1;min-width:0">
         <div class="pname">${p.name} <span class="badge b-new">νέο</span></div>
         <div class="pslang">${p.cat}</div>
@@ -354,7 +404,7 @@ function quickAdd(pid) {
 }
 
 // ============================================================
-// ΚΑΤΑΛΟΓΟΣ
+// ΚΑΤΑΛΟΓΟΣ — FIX: μοναδικά IDs με charCode
 // ============================================================
 
 function filterCatalog(q) { renderCatalog(q.toLowerCase().trim()); }
@@ -373,8 +423,8 @@ function renderCatalog(filter = '') {
     const zk = getZone(cat);
     const z = ZONES[zk];
     const inHist = new Set(Object.keys((cur && cur.history && cur.history[cat]) || {}));
-    // FIX: μοναδικό ID χωρίς σύγκρουση
-    const accId = 'acc-' + cat.split('').map(c => c.charCodeAt(0)).join('_');
+    // Μοναδικό ID: hash από charCodes — λύνει το bug accordion
+    const accId = 'acc' + Array.from(cat).reduce((h, c) => h * 31 + c.charCodeAt(0), 0);
     html += `<div class="cat-acc-hdr" onclick="toggleAcc('${accId}')">
       <span style="font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.6px">
         <i class="ti ${z.icon}" style="font-size:11px" aria-hidden="true"></i> ${cat}
@@ -449,11 +499,10 @@ function addNewProd() {
 }
 
 // ============================================================
-// ΣΥΝΟΛΑ ΑΝΑ ΚΑΤΗΓΟΡΙΑ & ΖΩΝΗ
+// ΣΥΝΟΛΑ ΑΝΑ ΚΑΤΗΓΟΡΙΑ
 // ============================================================
 
 function calcCatTotals(items) {
-  // Αθροίζει ποσότητες ανά μονάδα: { κιβ: 5, τεμ: 2 }
   const totals = {};
   items.forEach(({ st }) => {
     if (!totals[st.unit]) totals[st.unit] = 0;
@@ -484,20 +533,18 @@ function buildOrderByZone() {
 function goSummary() {
   const ordered = Object.entries(orderState).filter(([, s]) => s.on);
   if (!ordered.length && !quarantine.length) {
-    showToast('Δεν έχεις επιλέξει κανένα προϊόν!', 'error'); return;
+    showToast('Δεν έχεις τσεκάρει κανένα προϊόν!', 'error'); return;
   }
   document.getElementById('sum-date').textContent =
     new Date().toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   const byZC = buildOrderByZone();
-
   let html = '';
   Object.entries(ZONES).forEach(([zk, z]) => {
     if (!byZC[zk]) return;
     html += `<div class="sum-zone"><div class="sum-zone-hdr ${z.cls}"><i class="ti ${z.icon}" aria-hidden="true"></i> ${z.label}</div><div class="sum-body">`;
     Object.entries(byZC[zk]).forEach(([cat, items]) => {
       const total = calcCatTotals(items);
-      // Επικεφαλίδα κατηγορίας με σύνολο — ΤΣΕΚΑΡΕ ΕΔΩΣΕ πριν φύγεις από αυτή τη ζώνη
       html += `<div class="sum-cat-header">
         <span class="sum-cat-name">${cat}</span>
         <span class="sum-cat-total">${total}</span>
@@ -524,7 +571,6 @@ function goSummary() {
 function copyOrder() {
   const byZC = buildOrderByZone();
   let txt = `ΠΑΡΑΓΓΕΛΙΑ: ${cur.name} — ${cur.shop}\nΠΕΡΙΟΧΗ: ${cur.routeLabel}\nΗΜΕΡΟΜΗΝΙΑ: ${new Date().toLocaleDateString('el-GR')}\n\n`;
-
   Object.entries(ZONES).forEach(([zk, z]) => {
     if (!byZC[zk]) return;
     txt += `=== ${z.label} ===\n`;
@@ -535,14 +581,17 @@ function copyOrder() {
     });
     txt += '\n';
   });
-
   if (quarantine.length) {
     txt += '=== ΚΑΡΑΝΤΙΝΑ (αναμένει επιβεβαίωση) ===\n';
     quarantine.forEach(p => { txt += `• ${p.name}: ${p.qty} ${p.unit}\n`; });
   }
-
   navigator.clipboard.writeText(txt)
-    .then(() => showToast('Αντιγράφηκε!'))
+    .then(() => {
+      // Καθαρισμός εκκρεμούς παραγγελίας μετά την αποστολή
+      if (cur) delete pendingOrders[cur.id];
+      saveSession();
+      showToast('Αντιγράφηκε! ✓');
+    })
     .catch(() => showToast('Σφάλμα αντιγραφής', 'error'));
 }
 
@@ -613,11 +662,18 @@ function parseVoice(text) {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadData();
+  // Φόρτωση pendingOrders από session
+  try {
+    const raw = localStorage.getItem('orderapp_session');
+    if (raw) {
+      const s = JSON.parse(raw);
+      pendingOrders = s.pendingOrders || {};
+    }
+  } catch(e) {}
   filterClients('');
   renderCatalog('');
   document.getElementById('restore-input').addEventListener('change', e => {
     if (e.target.files[0]) importBackup(e.target.files[0]);
   });
-  // Επαναφορά session αν υπάρχει
   restoreSession();
 });
