@@ -1,5 +1,5 @@
 // ============================================================
-// ΚΥΡΙΑ ΛΟΓΙΚΗ ΕΦΑΡΜΟΓΗΣ
+// ΚΥΡΙΑ ΛΟΓΙΚΗ ΕΦΑΡΜΟΓΗΣ — v1.1
 // ============================================================
 
 const UNITS = ['κιβ', 'κιλά', 'τεμ'];
@@ -13,15 +13,60 @@ let quarantine = [];
 let catalogSelected = new Set();
 let npUnit = 'τεμ';
 let micOn = false, recog = null;
+let currentScreen = 's-clients';
+
+// ============================================================
+// ΑΠΟΘΗΚΕΥΣΗ ΤΡΕΧΟΥΣΑΣ ΚΑΤΑΣΤΑΣΗΣ (session)
+// ============================================================
+
+function saveSession() {
+  try {
+    const session = {
+      screen: currentScreen,
+      clientId: cur ? cur.id : null,
+      orderState: orderState,
+      quarantine: quarantine,
+    };
+    localStorage.setItem('orderapp_session', JSON.stringify(session));
+  } catch(e) {}
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem('orderapp_session');
+    if (!raw) return false;
+    const session = JSON.parse(raw);
+    if (!session.clientId) return false;
+    const client = window.CLIENTS.find(c => c.id === session.clientId);
+    if (!client) return false;
+    cur = client;
+    orderState = session.orderState || {};
+    quarantine = session.quarantine || [];
+    // Ενημέρωση header
+    document.getElementById('ord-cname').textContent = cur.name;
+    document.getElementById('ord-csub').innerHTML =
+      `<i class="ti ti-building-store" style="font-size:11px" aria-hidden="true"></i> ${cur.shop}
+       &nbsp;·&nbsp; <span class="rb rb-${cur.route}">${cur.routeLabel}</span>`;
+    document.getElementById('sum-cname').textContent = cur.name;
+    document.getElementById('sum-csub').textContent = `${cur.shop} — ${cur.routeLabel}`;
+    renderOrder();
+    // Επιστροφή στην οθόνη παραγγελίας (όχι summary — μπορεί να μην έχει νόημα)
+    const targetScreen = session.screen === 's-summary' ? 's-order' : (session.screen || 's-order');
+    show(targetScreen, false);
+    return true;
+  } catch(e) { return false; }
+}
 
 // ============================================================
 // ΠΛΟΗΓΗΣΗ
 // ============================================================
 
-function show(id) {
+function show(id, doSave = true) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  currentScreen = id;
+  if (doSave) saveSession();
 }
 
 function openNewProd() {
@@ -51,9 +96,9 @@ function checkQReady() {
   const cat  = document.getElementById('np-cat').value;
   const btn  = document.getElementById('btn-q');
   if (name && cat) {
-    btn.style.cssText = 'width:100%;padding:11px;border-radius:var(--border-radius-md);font-size:14px;font-weight:600;cursor:pointer;border:none;background:#1D9E75;color:#fff';
+    btn.style.cssText = 'flex:1;padding:11px;border-radius:var(--border-radius-md);font-size:14px;font-weight:600;cursor:pointer;border:none;background:#1D9E75;color:#fff';
   } else {
-    btn.style.cssText = 'width:100%;padding:11px;border-radius:var(--border-radius-md);font-size:14px;font-weight:500;cursor:not-allowed;border:none;background:var(--color-background-secondary);color:var(--color-text-tertiary)';
+    btn.style.cssText = 'flex:1;padding:11px;border-radius:var(--border-radius-md);font-size:14px;font-weight:500;cursor:not-allowed;border:none;background:var(--color-background-secondary);color:var(--color-text-tertiary)';
   }
 }
 
@@ -98,7 +143,7 @@ function filterClients(q) {
 }
 
 // ============================================================
-// ΕΠΙΛΟΓΗ ΠΕΛΑΤΗ & ΠΑΡΑΓΓΕΛΙΑ
+// ΕΠΙΛΟΓΗ ΠΕΛΑΤΗ
 // ============================================================
 
 function selectClient(id) {
@@ -112,7 +157,6 @@ function selectClient(id) {
   document.getElementById('sum-csub').textContent = `${cur.shop} — ${cur.routeLabel}`;
   orderState = {};
   quarantine = [];
-  // Φόρτωση ιστορικού
   Object.entries(cur.history || {}).forEach(([cat, items]) => {
     Object.entries(items).forEach(([pid, qty]) => {
       const p = getProd(pid);
@@ -122,6 +166,10 @@ function selectClient(id) {
   renderOrder();
   show('s-order');
 }
+
+// ============================================================
+// RENDER ΠΑΡΑΓΓΕΛΙΑΣ
+// ============================================================
 
 function unitSegHTML(pid, au) {
   return UNITS.map(u =>
@@ -181,6 +229,7 @@ function renderOrder() {
   });
   document.getElementById('order-products').innerHTML = html;
   renderQuarantine();
+  saveSession();
 }
 
 function setUnit(pid, unit) {
@@ -202,6 +251,7 @@ function setUnit(pid, unit) {
   const qp = document.getElementById('qp-' + pid);
   if (qm) qm.disabled = false;
   if (qp) qp.disabled = false;
+  saveSession();
 }
 
 function toggleP(pid) {
@@ -222,6 +272,7 @@ function toggleP(pid) {
   const qp = document.getElementById('qp-' + pid);
   if (qm) qm.disabled = !on;
   if (qp) qp.disabled = !on;
+  saveSession();
 }
 
 function chQty(pid, d) {
@@ -229,10 +280,12 @@ function chQty(pid, d) {
   orderState[pid].qty = Math.max(1, orderState[pid].qty + d);
   const el = document.getElementById('qty-' + pid);
   if (el) el.textContent = orderState[pid].qty;
+  saveSession();
 }
 function chQQty(i, d) {
   quarantine[i].qty = Math.max(1, quarantine[i].qty + d);
   renderQuarantine();
+  saveSession();
 }
 
 function renderQuarantine() {
@@ -260,7 +313,7 @@ function renderQuarantine() {
 }
 
 // ============================================================
-// LIVE ΑΝΑΖΗΤΗΣΗ (Νέο προϊόν)
+// LIVE ΑΝΑΖΗΤΗΣΗ
 // ============================================================
 
 function liveSearch(q) {
@@ -320,7 +373,8 @@ function renderCatalog(filter = '') {
     const zk = getZone(cat);
     const z = ZONES[zk];
     const inHist = new Set(Object.keys((cur && cur.history && cur.history[cat]) || {}));
-    const accId = 'acc-' + cat.replace(/[^a-z0-9]/gi, '_');
+    // FIX: μοναδικό ID χωρίς σύγκρουση
+    const accId = 'acc-' + cat.split('').map(c => c.charCodeAt(0)).join('_');
     html += `<div class="cat-acc-hdr" onclick="toggleAcc('${accId}')">
       <span style="font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.6px">
         <i class="ti ${z.icon}" style="font-size:11px" aria-hidden="true"></i> ${cat}
@@ -395,8 +449,37 @@ function addNewProd() {
 }
 
 // ============================================================
+// ΣΥΝΟΛΑ ΑΝΑ ΚΑΤΗΓΟΡΙΑ & ΖΩΝΗ
+// ============================================================
+
+function calcCatTotals(items) {
+  // Αθροίζει ποσότητες ανά μονάδα: { κιβ: 5, τεμ: 2 }
+  const totals = {};
+  items.forEach(({ st }) => {
+    if (!totals[st.unit]) totals[st.unit] = 0;
+    totals[st.unit] += st.qty;
+  });
+  return Object.entries(totals).map(([u, q]) => `${q} ${u}`).join(' + ');
+}
+
+// ============================================================
 // ΕΠΙΒΕΒΑΙΩΣΗ & ΑΠΟΣΤΟΛΗ
 // ============================================================
+
+function buildOrderByZone() {
+  const ordered = Object.entries(orderState).filter(([, s]) => s.on);
+  const byZC = {};
+  ordered.forEach(([pid, st]) => {
+    const cat = getCatOfProd(pid);
+    const p = getProd(pid);
+    if (!p) return;
+    const zk = getZone(cat);
+    if (!byZC[zk]) byZC[zk] = {};
+    if (!byZC[zk][cat]) byZC[zk][cat] = [];
+    byZC[zk][cat].push({ p, st });
+  });
+  return byZC;
+}
 
 function goSummary() {
   const ordered = Object.entries(orderState).filter(([, s]) => s.on);
@@ -406,28 +489,26 @@ function goSummary() {
   document.getElementById('sum-date').textContent =
     new Date().toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  const byZC = {};
-  ordered.forEach(([pid, st]) => {
-    const cat = getCatOfProd(pid);
-    const p = getProd(pid);
-    const zk = getZone(cat);
-    if (!byZC[zk]) byZC[zk] = {};
-    if (!byZC[zk][cat]) byZC[zk][cat] = [];
-    byZC[zk][cat].push({ p, st });
-  });
+  const byZC = buildOrderByZone();
 
   let html = '';
   Object.entries(ZONES).forEach(([zk, z]) => {
     if (!byZC[zk]) return;
     html += `<div class="sum-zone"><div class="sum-zone-hdr ${z.cls}"><i class="ti ${z.icon}" aria-hidden="true"></i> ${z.label}</div><div class="sum-body">`;
     Object.entries(byZC[zk]).forEach(([cat, items]) => {
-      html += `<div class="sum-cat">${cat}</div>`;
+      const total = calcCatTotals(items);
+      // Επικεφαλίδα κατηγορίας με σύνολο — ΤΣΕΚΑΡΕ ΕΔΩΣΕ πριν φύγεις από αυτή τη ζώνη
+      html += `<div class="sum-cat-header">
+        <span class="sum-cat-name">${cat}</span>
+        <span class="sum-cat-total">${total}</span>
+      </div>`;
       items.forEach(({ p, st }) => {
         html += `<div class="sum-line"><span>${p.name}</span><span>${st.qty} ${st.unit}</span></div>`;
       });
     });
     html += '</div></div>';
   });
+
   if (quarantine.length) {
     html += `<div class="sum-zone" style="border-color:#EF9F27"><div class="sum-zone-hdr qua"><i class="ti ti-clock" aria-hidden="true"></i> Καραντίνα</div><div class="sum-body">`;
     quarantine.forEach(p => {
@@ -435,34 +516,34 @@ function goSummary() {
     });
     html += '</div></div>';
   }
+
   document.getElementById('sum-content').innerHTML = html;
   show('s-summary');
 }
 
 function copyOrder() {
-  const ordered = Object.entries(orderState).filter(([, s]) => s.on);
+  const byZC = buildOrderByZone();
   let txt = `ΠΑΡΑΓΓΕΛΙΑ: ${cur.name} — ${cur.shop}\nΠΕΡΙΟΧΗ: ${cur.routeLabel}\nΗΜΕΡΟΜΗΝΙΑ: ${new Date().toLocaleDateString('el-GR')}\n\n`;
-  const byZC = {};
-  ordered.forEach(([pid, st]) => {
-    const cat = getCatOfProd(pid); const p = getProd(pid); const zk = getZone(cat);
-    if (!byZC[zk]) byZC[zk] = {};
-    if (!byZC[zk][cat]) byZC[zk][cat] = [];
-    byZC[zk][cat].push({ p, st });
-  });
+
   Object.entries(ZONES).forEach(([zk, z]) => {
     if (!byZC[zk]) return;
     txt += `=== ${z.label} ===\n`;
     Object.entries(byZC[zk]).forEach(([cat, items]) => {
-      txt += `[${cat}]\n`;
-      items.forEach(({ p, st }) => { txt += `• ${p.name}: ${st.qty} ${st.unit}\n`; });
+      const total = calcCatTotals(items);
+      txt += `[${cat} — ΣΥΝΟΛΟ: ${total}]\n`;
+      items.forEach(({ p, st }) => { txt += `  • ${p.name}: ${st.qty} ${st.unit}\n`; });
     });
     txt += '\n';
   });
+
   if (quarantine.length) {
     txt += '=== ΚΑΡΑΝΤΙΝΑ (αναμένει επιβεβαίωση) ===\n';
     quarantine.forEach(p => { txt += `• ${p.name}: ${p.qty} ${p.unit}\n`; });
   }
-  navigator.clipboard.writeText(txt).then(() => showToast('Αντιγράφηκε!')).catch(() => showToast('Σφάλμα αντιγραφής', 'error'));
+
+  navigator.clipboard.writeText(txt)
+    .then(() => showToast('Αντιγράφηκε!'))
+    .catch(() => showToast('Σφάλμα αντιγραφής', 'error'));
 }
 
 // ============================================================
@@ -537,4 +618,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('restore-input').addEventListener('change', e => {
     if (e.target.files[0]) importBackup(e.target.files[0]);
   });
+  // Επαναφορά session αν υπάρχει
+  restoreSession();
 });
