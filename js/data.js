@@ -3,7 +3,7 @@
 // ============================================================
 
 const ZONES = {
-  kty: { label: 'ΚΤΨ — Κατάψυξη', cls: 'kty', icon: 'ti-snowflake', cats: ['ΠΑΤΑΤΕΣ','ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ','ΠΙΤΕΣ','ΚΡΕΑΤΙΚΑ','VEGAN (ΚΤΨ)','ΓΛΥΚΑ / ΠΑΓΩΤΑ','ΨΑΡΙΑ / ΘΑΛΑΣΣΙΝΑ'] },
+  kty: { label: 'ΚΤΨ — Κατάψυξη', cls: 'kty', icon: 'ti-snowflake', cats: ['ΠΑΤΑΤΕΣ','ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ','ΠΙΤΕΣ','ΚΡΕΑΤΙΚΑ','VEGAN (ΚΤΨ)','ΛΑΧΑΝΙΚΑ / ΚΑΤΕΨΥΓΜΕΝΑ','ΓΛΥΚΑ / ΠΑΓΩΤΑ','ΨΑΡΙΑ / ΘΑΛΑΣΣΙΝΑ'] },
   syn: { label: 'Συντήρηση', cls: 'syn', icon: 'ti-temperature-minus', cats: ['ΑΛΛΑΝΤΙΚΑ / ΣΥΝΤΗΡΗΣΗ','ΣΑΛΤΣΕΣ / ΣΥΝΤΗΡΗΣΗ','ΤΥΡΙΑ / ΣΥΝΤΗΡΗΣΗ','ΓΑΛΑΚΤΟΚΟΜΙΚΑ'] },
   apo: { label: 'Αποθήκη / Ξηρό κομμάτι', cls: 'apo', icon: 'ti-building-warehouse', cats: ['ΑΠΟΘΗΚΗ / ΞΗΡΟ ΚΟΜΜΑΤΙ','ΠΡΑΛΙΝΕΣ / ΓΛΥΚΑ ΑΠΟΘΗΚΗ','ΡΥΖΙΑ'] },
 };
@@ -100,6 +100,32 @@ const DEFAULT_PRODUCTS = {
     { id:'sl36', name:'293 - Hamburger King με Σουσάμι Select', slang:'293 hamburger king σουσαμι select ψωμακι hamburger burger king σουσαμι', unit:'κιβ', supplier:'Select' },
     { id:'sl37', name:'577 - Potato Bun Select', slang:'577 potato bun select ψωμακι potato bun πατατα', unit:'κιβ', supplier:'Select' },
     { id:'sl38', name:'Ζαπάτα Select', slang:'ζαπατα select ψωμι zapata', unit:'κιβ', supplier:'Select' },
+    // ZEO
+    { id:'zeo1',  name:'PANINI ZEO Burger Boy 90gr',            slang:'panini zeo burger boy 90 πανινι μπεργκερ ψωμι',                unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo2',  name:'PANINI ZEO Caree Club 150gr',           slang:'panini zeo caree club 150 πανινι club ψωμι',                   unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo3',  name:'PANINI ZEO 130gr',                      slang:'panini zeo 130 πανινι ψωμι',                                   unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo4',  name:'BRIOCHE ZEO Butter 90gr',               slang:'brioche zeo butter 90 μπριος μπεργκερ ψωμι',                   unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo5',  name:'BRIOCHE ZEO Butter Black Edition 90gr', slang:'brioche zeo butter black edition 90 μπριος μπεργκερ μαυρο ψωμι',unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo6',  name:'BRIOCHE ZEO Butter 130gr',              slang:'brioche zeo butter 130 μπριος μπεργκερ ψωμι',                  unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo7',  name:'Lobster Loaf ZEO 600gr (6τμχ.)',        slang:'lobster loaf zeo 600 6τμχ μπριος ψωμι',                        unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo8',  name:'Michelen Brioche ZEO 750gr',            slang:'michelen brioche zeo 750 μπριος ψωμι',                         unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo9',  name:'Τοστ Molly Λευκό 13x13cm ZEO',         slang:'τοστ molly λευκο 13x13 zeo ψυχα τοστ ψωμι',                   unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo10', name:'FOCACCINA 130gr ZEO',                   slang:'focaccina 130 zeo φοκατσινα ψωμι',                             unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo11', name:'CIABATTA Πολύσπορη 120gr ZEO',          slang:'ciabatta πολυσπορη 120 zeo τσιαπατα ζιαπατα ψωμι',            unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo12', name:'CIABATTA Λευκή 120gr ZEO',              slang:'ciabatta λευκη 120 zeo τσιαπατα ζιαπατα λευκη ψωμι',          unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo13', name:'Patatu Bun ZEO',                        slang:'patatu bun zeo μπεργκερ ψωμι',                                 unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo14', name:'BAO BUN ZEO',                           slang:'bao bun zeo bao ψωμι',                                        unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo15', name:'ΜΠΑΓΚΕΤΑ FORNARINA Πολύσπορη 130gr ZEO',slang:'μπαγκετα fornarina πολυσπορη 130 zeo μπαγκετα ψωμι',         unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo16', name:'ΜΠΑΓΚΕΤΑ Καλαμπόκι 125gr ZEO',         slang:'μπαγκετα καλαμποκι 125 zeo μπαγκετα ψωμι',                    unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo17', name:'ΜΠΑΓΚΕΤΑ CHAMPAGNE ZEO',                slang:'μπαγκετα champagne zeo μπαγκετα σαμπανια ψωμι',               unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo18', name:'Μπαγκέτα Μπρέτσελ 24cm 125gr ZEO',     slang:'μπαγκετα μπρετσελ 24 125 zeo μπαγκετα ψωμι',                  unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo19', name:'BRUNCH BREAD 150gr ZEO',                slang:'brunch bread 150 zeo brunch ψωμι',                             unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo20', name:'PINSA 270gr ZEO',                       slang:'pinsa 270 zeo pinsa πιντσα',                                   unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo21', name:'PINSA 30cm ZEO',                        slang:'pinsa 30cm zeo pinsa πιντσα',                                  unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo22', name:'Βάση Πίτσας Napoletana 30cm 350gr ZEO', slang:'βαση πιτσας napoletana 30 350 zeo πιτσα βαση',                unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo23', name:'BAGEL Πολύσπορο 90gr ZEO',              slang:'bagel πολυσπορο 90 zeo bagel κουλουρι',                        unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo24', name:'MINI PANCAKES ZEO',                     slang:'mini pancakes zeo πανκεικ μικρα',                              unit:'κιβ', supplier:'ZEO' },
+    { id:'zeo25', name:'PANCAKE ΒΟΥΤΥΡΟΥ 50gr ZEO',             slang:'pancake βουτυρου 50 zeo πανκεικ',                              unit:'κιβ', supplier:'ZEO' },
     // Αραμπατζής
     { id:'ar1', name:'Ταψί τυρί Αραμπατζής', slang:'ταψι τυρι αραμπατζης ταψι τυροπιτα τυρι', unit:'τεμ', supplier:'Αραμπατζής' },
     { id:'ar2', name:'Ταψί σπανάκι Αραμπατζής', slang:'ταψι σπανακι αραμπατζης ταψι σπανακοπιτα σπανακι', unit:'τεμ', supplier:'Αραμπατζής' },
@@ -250,6 +276,48 @@ const DEFAULT_PRODUCTS = {
     { id:'alt1', name:'Λωρίδα κοτόπουλο 2,5kg Alterra', slang:'λωριδα κοτοπουλο 2.5 alterra λωριδα κοτοπουλο φιλετο', unit:'τεμ', supplier:'Alterra' },
     { id:'alt2', name:'Ψημένο σουβλάκι 2,5kg Alterra', slang:'ψημενο σουβλακι 2.5 alterra σουβλακι κοτοπουλο ψημενο', unit:'τεμ', supplier:'Alterra' },
     { id:'alt3', name:'Ψημένο φιλέτο 2,5kg Alterra', slang:'ψημενο φιλετο 2.5 alterra φιλετο κοτοπουλο ψημενο', unit:'τεμ', supplier:'Alterra' },
+    // ΠΙΝΔΟΣ
+    { id:'pin1',  name:'Κοτομπουκιά 2Kg Πίνδος',          slang:'κοτομπουκια 2kg πινδος κοτοπουλο κατεψυγμενο nuggets',       unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin2',  name:'Κοτομπουκιά 1Kg Πίνδος',          slang:'κοτομπουκια 1kg πινδος κοτοπουλο κατεψυγμενο nuggets μικρο', unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin3',  name:'Σνίτσελ 2Kg Πίνδος',              slang:'σνιτσελ 2kg πινδος κοτοπουλο κατεψυγμενο',                   unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin4',  name:'Σνίτσελ 1Kg Πίνδος',              slang:'σνιτσελ 1kg πινδος κοτοπουλο κατεψυγμενο μικρο',             unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin5',  name:'Φιλετάκι 2Kg Πίνδος',             slang:'φιλετακι 2kg πινδος κοτοπουλο φιλετο κατεψυγμενο',           unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin6',  name:'Cordon Bleu 2Kg Πίνδος',          slang:'cordon bleu 2kg πινδος κοτοπουλο κατεψυγμενο',               unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin7',  name:'Cordon Bleu 1Kg Πίνδος',          slang:'cordon bleu 1kg πινδος κοτοπουλο κατεψυγμενο μικρο',         unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin8',  name:'Φτερούγα BBQ 2Kg Πίνδος',         slang:'φτερουγα bbq 2kg πινδος κοτοπουλο φτερουγες κατεψυγμενο',    unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin9',  name:'Δισκάκι Συκώτια Κοτόπουλο Πίνδος',slang:'δισκακι συκωτια κοτοπουλο πινδος κοτοπουλο φρεσκο',         unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin10', name:'Δισκάκι Στήθος Κοτόπουλο Πίνδος', slang:'δισκακι στηθος κοτοπουλο πινδος φιλετο φρεσκο',             unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin11', name:'Δισκάκι Φτερούγα Κοτόπουλο Πίνδος',slang:'δισκακι φτερουγα κοτοπουλο πινδος φτερουγα φρεσκο',        unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin12', name:'Δισκάκι Μπούτια Κοτόπουλο Πίνδος',slang:'δισκακι μπουτια κοτοπουλο πινδος μπουτι φρεσκο',            unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin13', name:'Δισκάκι Κοτόπουλο Ολόκληρο Πίνδος',slang:'δισκακι κοτοπουλο ολοκληρο πινδος ολοκληρο φρεσκο',       unit:'κιβ', supplier:'Πίνδος' },
+    { id:'pin14', name:'Μπιφτέκι Κοτόπουλο 2Kg Πίνδος',   slang:'μπιφτεκι κοτοπουλο 2kg πινδος μπιφτεκι κοτοπουλο κατεψυγμενο', unit:'κιβ', supplier:'Πίνδος' },
+    // ΝΑΝΟΣ
+    { id:'nan1',  name:'Γύρος Χοιρινός 5Kg Νάνος',        slang:'γυρος χοιρινος 5kg νανος γυρος χοιρινο κατεψυγμενο',         unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan2',  name:'Γύρος Χοιρινός 7Kg Νάνος',        slang:'γυρος χοιρινος 7kg νανος γυρος χοιρινο κατεψυγμενο',         unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan3',  name:'Γύρος Χοιρινός 10Kg Νάνος',       slang:'γυρος χοιρινος 10kg νανος γυρος χοιρινο κατεψυγμενο',        unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan4',  name:'Γύρος Χοιρινός 15Kg Νάνος',       slang:'γυρος χοιρινος 15kg νανος γυρος χοιρινο κατεψυγμενο',        unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan5',  name:'Γύρος Χοιρινός 20Kg Νάνος',       slang:'γυρος χοιρινος 20kg νανος γυρος χοιρινο κατεψυγμενο',        unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan6',  name:'Γύρος Χοιρινός 30Kg Νάνος',       slang:'γυρος χοιρινος 30kg νανος γυρος χοιρινο κατεψυγμενο',        unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan7',  name:'Γύρος Κοτόπουλο 5Kg Νάνος',       slang:'γυρος κοτοπουλο 5kg νανος γυρος κοτοπουλο κατεψυγμενο',     unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan8',  name:'Γύρος Κοτόπουλο 7Kg Νάνος',       slang:'γυρος κοτοπουλο 7kg νανος γυρος κοτοπουλο κατεψυγμενο',     unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan9',  name:'Γύρος Κοτόπουλο 10Kg Νάνος',      slang:'γυρος κοτοπουλο 10kg νανος γυρος κοτοπουλο κατεψυγμενο',    unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan10', name:'Γύρος Κοτόπουλο 15Kg Νάνος',      slang:'γυρος κοτοπουλο 15kg νανος γυρος κοτοπουλο κατεψυγμενο',    unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan11', name:'Γύρος Κοτόπουλο 20Kg Νάνος',      slang:'γυρος κοτοπουλο 20kg νανος γυρος κοτοπουλο κατεψυγμενο',    unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan12', name:'Γύρος Κοτόπουλο 30Kg Νάνος',      slang:'γυρος κοτοπουλο 30kg νανος γυρος κοτοπουλο κατεψυγμενο',    unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan13', name:'Πανσετάκι Νάνος',                  slang:'πανσετακι νανος παντσετα χοιρινο κατεψυγμενο',               unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan14', name:'Σουβλάκι Χοιρινό Χειροποίητο Νάνος',slang:'σουβλακι χοιρινο χειροποιητο νανος σουβλακι χοιρινο κατεψυγμενο', unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan15', name:'Σουβλάκι Χοιρινό Μηχανής Νάνος',  slang:'σουβλακι χοιρινο μηχανης νανος σουβλακι χοιρινο κατεψυγμενο',unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan16', name:'Μπιφτέκι 150gr Νάνος',             slang:'μπιφτεκι 150 νανος μπιφτεκι κιμας κατεψυγμενο',             unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan17', name:'Μπιφτέκι 180gr Νάνος',             slang:'μπιφτεκι 180 νανος μπιφτεκι κιμας κατεψυγμενο',             unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan18', name:'Μπιφτέκι 200gr Νάνος',             slang:'μπιφτεκι 200 νανος μπιφτεκι κιμας κατεψυγμενο',             unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan19', name:'Πανσέτα Νάνος',                    slang:'πανσετα νανος παντσετα χοιρινο κατεψυγμενο',                unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan20', name:'Κεφτεδάκι Νάνος',                  slang:'κεφτεδακι νανος κεφτεδες κιμας κατεψυγμενο',                unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan21', name:'Λουκάνικα Νάνος',                  slang:'λουκανικα νανος λουκανικο χοιρινο κατεψυγμενο',             unit:'τεμ', supplier:'Νάνος' },
+    { id:'nan22', name:'Rib Eye Νάνος',                     slang:'rib eye νανος ribeye μοσχαρι βοδινο κατεψυγμενο',            unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan23', name:'Σταβλίσια Μπριζόλα Νάνος',         slang:'σταβλισια μπριζολα νανος μπριζολα μοσχαρι κατεψυγμενο',    unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan24', name:'Κοτομπουκιά Προψημένη Νάνος',      slang:'κοτομπουκια προψημενη νανος κοτομπουκια κοτοπουλο κατεψυγμενο', unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan25', name:'Κοτομπουκιά Ωμή Νάνος',            slang:'κοτομπουκια ωμη νανος κοτομπουκια κοτοπουλο κατεψυγμενο ωμο', unit:'κιβ', supplier:'Νάνος' },
+    { id:'nan26', name:'Strips Κοτόπουλο Νάνος',           slang:'strips κοτοπουλο νανος strips κοτοπουλο κατεψυγμενο',       unit:'κιβ', supplier:'Νάνος' },
   ],
 
   // ============================================================
@@ -545,6 +613,41 @@ const DEFAULT_PRODUCTS = {
     { id:'rz4', name:'Carolina 5kg', slang:'carolina ρυζι 5kg ρυζι carolina', unit:'τεμ', supplier:'—' },
     { id:'rz5', name:'Κίτρινο 5kg', slang:'κιτρινο ρυζι 5kg ρυζι κιτρινο', unit:'τεμ', supplier:'—' },
     { id:'rz6', name:'Φάβα 5kg', slang:'φαβα ρυζι 5kg ρυζι φαβα οσπριο', unit:'τεμ', supplier:'—' },
+  ],
+
+  // ============================================================
+  // ΑΡΤΟΠΟΙΗΜΑΤΑ / ΨΩΜΙΑ — ZEO
+  // ============================================================
+  // (Τα ZEO προϊόντα προστίθενται στην ήδη υπάρχουσα κατηγορία παρακάτω)
+
+  // ============================================================
+  // ΛΑΧΑΝΙΚΑ / ΚΑΤΕΨΥΓΜΕΝΑ (ΚΤΨ)
+  // ============================================================
+  'ΛΑΧΑΝΙΚΑ / ΚΑΤΕΨΥΓΜΕΝΑ': [
+    // ΛΑΝΑΡΑΣ
+    { id:'lan1',  name:'Μπάμιες (σακούλα) Λανάρας',           slang:'μπαμιες λαναρας λαχανικα κατεψυγμενα σακουλα',         unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan2',  name:'Φασολάκι Πλατύ (σακούλα) Λανάρας',    slang:'φασολακι πλατυ λαναρας φασολακια λαχανικα κατεψυγμενα', unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan3',  name:'Φασολάκι Στρογγυλό (σακούλα) Λανάρας',slang:'φασολακι στρογγυλο λαναρας φασολακια λαχανικα κατεψυγμενα', unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan4',  name:'Ανάμεικτα Λαχανικά (σακούλα) Λανάρας',slang:'αναμεικτα λαχανικα λαναρας λαχανικα μιγμα κατεψυγμενα',  unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan5',  name:'Μανιτάρι (σακούλα) Λανάρας',          slang:'μανιταρι λαναρας μανιταρια λαχανικα κατεψυγμενα',       unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan6',  name:'Καλαμπόκι (σακούλα) Λανάρας',         slang:'καλαμποκι λαναρας λαχανικα κατεψυγμενα',               unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan7',  name:'Αγκινάρα (σακούλα) Λανάρας',          slang:'αγκιναρα λαναρας αγκιναρες λαχανικα κατεψυγμενα',      unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan8',  name:'Αρακάς (σακούλα) Λανάρας',            slang:'αρακας λαναρας μπιζελι λαχανικα κατεψυγμενα',          unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan9',  name:'Σπανάκι (σακούλα) Λανάρας',           slang:'σπανακι λαναρας σπανακι λαχανικα κατεψυγμενα',         unit:'τεμ', supplier:'Λανάρας' },
+    { id:'lan10', name:'Καρότο Baby (σακούλα) Λανάρας',        slang:'καροτο baby λαναρας καροτακια λαχανικα κατεψυγμενα',   unit:'τεμ', supplier:'Λανάρας' },
+    // Άγνωστος προμηθευτής — κιβ
+    { id:'lx1',  name:'Κρεμμύδι κατεψυγμένο',    slang:'κρεμμυδι κατεψυγμενο λαχανικα κιβ',              unit:'κιβ', supplier:'—' },
+    { id:'lx2',  name:'Πράσο κατεψυγμένο',        slang:'πρασο κατεψυγμενο λαχανικα κιβ',                 unit:'κιβ', supplier:'—' },
+    { id:'lx3',  name:'Σπανάκι κατεψυγμένο',      slang:'σπανακι κατεψυγμενο λαχανικα κιβ',               unit:'κιβ', supplier:'—' },
+    { id:'lx4',  name:'Καρότο Baby κατεψυγμένο',  slang:'καροτο baby κατεψυγμενο καροτακια λαχανικα κιβ', unit:'κιβ', supplier:'—' },
+    { id:'lx5',  name:'Καρότο Κύβος κατεψυγμένο', slang:'καροτο κυβος κατεψυγμενο καροτι λαχανικα κιβ',  unit:'κιβ', supplier:'—' },
+    { id:'lx6',  name:'Καρότο Ροδέλα κατεψυγμένο',slang:'καροτο ροδελα κατεψυγμενο καροτι λαχανικα κιβ', unit:'κιβ', supplier:'—' },
+    { id:'lx7',  name:'Πιπεριά Πράσινη Λωρίδα',   slang:'πιπερια πρασινη λωριδα κατεψυγμενη λαχανικα κιβ',unit:'κιβ', supplier:'—' },
+    { id:'lx8',  name:'Πιπεριά Κόκκινη Λωρίδα',   slang:'πιπερια κοκκινη λωριδα κατεψυγμενη λαχανικα κιβ',unit:'κιβ', supplier:'—' },
+    { id:'lx9',  name:'Καλαμπόκι κατεψυγμένο',    slang:'καλαμποκι κατεψυγμενο λαχανικα κιβ',             unit:'κιβ', supplier:'—' },
+    { id:'lx10', name:'Μίγμα Φρούτων κατεψυγμένο',slang:'μιγμα φρουτων κατεψυγμενο φρουτα κιβ',          unit:'κιβ', supplier:'—' },
+    { id:'lx11', name:'Φράουλα κατεψυγμένη',      slang:'φραουλα κατεψυγμενη φρουτα κιβ',                 unit:'κιβ', supplier:'—' },
+    { id:'lx12', name:'Κάστανα κατεψυγμένα',      slang:'καστανα κατεψυγμενα κιβ',                        unit:'κιβ', supplier:'—' },
   ],
 
   'ΓΛΥΚΑ / ΠΑΓΩΤΑ': [],
