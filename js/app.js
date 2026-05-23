@@ -260,6 +260,7 @@ function renderOrder() {
             <span class="qdisplay" id="qty-${p.id}">${st.qty}</span>
             <button class="qbtn" onclick="chQty('${p.id}',1)" id="qp-${p.id}">+</button>
           </div>
+          ${inH ? `<button onclick="removeFromHistory('${p.id}')" style="border:none;background:transparent;padding:4px 5px;cursor:pointer;color:#ccc;margin-left:2px" aria-label="Αφαίρεση από ιστορικό" title="Αφαίρεση από ιστορικό"><i class="ti ti-x" style="font-size:13px"></i></button>` : ''}
         </div>`;
     });
   });
@@ -338,6 +339,23 @@ function chQQty(i, d) {
   saveSession();
 }
 
+function removeFromHistory(pid) {
+  if (!cur) return;
+  // Αφαίρεση από το ιστορικό του πελάτη
+  for (const cat of Object.keys(cur.history || {})) {
+    if (cur.history[cat] && cur.history[cat][pid] !== undefined) {
+      delete cur.history[cat][pid];
+      if (Object.keys(cur.history[cat]).length === 0) delete cur.history[cat];
+      break;
+    }
+  }
+  // Αφαίρεση από το orderState
+  delete orderState[pid];
+  autoSave();
+  renderOrder();
+  showToast('Αφαιρέθηκε από το ιστορικό');
+}
+
 function renderQuarantine() {
   if (!quarantine.length) { document.getElementById('quarantine-section').innerHTML = ''; return; }
   let html = `<div class="zone-block" style="border-color:#EF9F27">
@@ -349,17 +367,26 @@ function renderQuarantine() {
     html += `<div class="prow" style="border-color:#EF9F27;background:#FAEEDA">
       <div style="flex:1;min-width:0">
         <div class="pname">${p.name} <span class="badge b-new">νέο</span></div>
-        <div class="pslang">${p.cat}</div>
+        <div class="pslang" style="color:#8a5a00">${p.cat}</div>
       </div>
       <div class="qty-ctrl">
         <button class="qbtn" onclick="chQQty(${i},-1)">−</button>
         <span class="qdisplay">${p.qty} ${p.unit}</span>
         <button class="qbtn" onclick="chQQty(${i},1)">+</button>
       </div>
+      <button onclick="removeFromQuarantine(${i})" style="border:none;background:transparent;padding:4px 6px;cursor:pointer;color:#B91C1C;margin-left:4px" aria-label="Διαγραφή">
+        <i class="ti ti-trash" style="font-size:14px"></i>
+      </button>
     </div>`;
   });
   html += '</div></div>';
   document.getElementById('quarantine-section').innerHTML = html;
+}
+
+function removeFromQuarantine(i) {
+  quarantine.splice(i, 1);
+  renderQuarantine();
+  saveSession();
 }
 
 // ============================================================
@@ -434,12 +461,14 @@ function renderCatalog(filter = '') {
     <div class="cat-acc-body${filter ? ' open' : ''}" id="${accId}">`;
     filtered.forEach(p => {
       const sel = catalogSelected.has(p.id);
+      const isCustom = p.id.startsWith('custom_');
       html += `<div class="catalog-prow${sel ? ' selected' : ''}" onclick="toggleCatSel('${p.id}')">
         <i class="ti ${sel ? 'ti-check' : 'ti-circle'}" style="font-size:15px;color:${sel ? '#1D9E75' : 'var(--color-text-tertiary)'}" aria-hidden="true"></i>
         <div style="flex:1;min-width:0">
-          <div class="pname">${p.name}${inHist.has(p.id) ? ' <span class="badge b-hist">ιστορικό</span>' : ''}</div>
+          <div class="pname">${p.name}${inHist.has(p.id) ? ' <span class="badge b-hist">ιστορικό</span>' : ''}${isCustom ? ' <span class="badge" style="background:#FFF3CD;color:#856404;border:1px solid #FFDF7E">custom</span>' : ''}</div>
           <div class="pslang">${p.supplier || ''}</div>
         </div>
+        ${isCustom ? `<button onclick="event.stopPropagation();openEditProd('${p.id}')" style="border:none;background:transparent;padding:4px 6px;cursor:pointer;color:var(--color-text-tertiary)" aria-label="Επεξεργασία"><i class="ti ti-pencil" style="font-size:14px"></i></button>` : ''}
       </div>`;
     });
     html += '</div>';
@@ -473,29 +502,134 @@ function addFromCatalog() {
 }
 
 // ============================================================
-// ΚΑΡΑΝΤΙΝΑ - ΝΕΟ ΠΡΟΪΟΝ
+// CUSTOM ΠΡΟΪΟΝ — ΠΡΟΣΘΗΚΗ ΣΤΟ ΚΑΤΑΛΟΓΟ
 // ============================================================
-
-function setNpUnit(u, idx) {
-  npUnit = u;
-  syncNpUnitBtns();
-}
 
 function addNewProd() {
   const cat  = document.getElementById('np-cat').value;
   const name = document.getElementById('np-name').value.trim();
   if (!cat || !name) return;
-  const qty  = parseInt(document.getElementById('np-qty').value) || 1;
-  quarantine.push({ name, cat, qty, unit: npUnit });
+  const slang = document.getElementById('np-slang').value.trim();
+  const qty   = parseInt(document.getElementById('np-qty').value) || 1;
+
+  // Δημιουργία μοναδικού ID
+  const pid = 'custom_' + Date.now();
+  const newProd = { id: pid, name, slang: (slang || name).toLowerCase(), unit: npUnit, supplier: '' };
+
+  // Προσθήκη στον κατάλογο
+  if (!window.PRODUCTS[cat]) window.PRODUCTS[cat] = [];
+  window.PRODUCTS[cat].push(newProd);
+
+  // Αυτόματη ενεργοποίηση στην παραγγελία
+  orderState[pid] = { on: true, qty, unit: npUnit };
+
+  autoSave();
+
+  // Καθαρισμός φόρμας
   document.getElementById('np-cat').value = '';
   document.getElementById('np-name').value = '';
   document.getElementById('np-slang').value = '';
   document.getElementById('np-qty').value = '1';
   document.getElementById('np-search').value = '';
   document.getElementById('live-results').style.display = 'none';
+
+  renderCatalog('');
   renderOrder();
   show('s-order');
-  showToast('Προστέθηκε στην καραντίνα!');
+  showToast('Προστέθηκε στον κατάλογο!');
+}
+
+// ============================================================
+// ΕΠΕΞΕΡΓΑΣΙΑ CUSTOM ΠΡΟΪΟΝΤΟΣ
+// ============================================================
+
+function openEditProd(pid) {
+  const p = getProd(pid);
+  if (!p) return;
+  const cat = getCatOfProd(pid);
+
+  const cats = Object.keys(window.PRODUCTS);
+  const catOpts = cats.map(c => `<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('');
+  const unitBtns = UNITS.map((u,i) => `<button onclick="editSetUnit('${u}',this)" style="${u===p.unit?'flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#1D9E75;color:#fff':'flex:1;padding:8px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:#f0f0f0;color:#555'}">${ULABELS[u]}</button>`).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'edit-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:flex-end';
+  modal.innerHTML = `
+    <div style="background:#fff;width:100%;border-radius:16px 16px 0 0;padding:20px;max-height:85vh;overflow-y:auto">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a1a1a">
+        <i class="ti ti-pencil" style="color:var(--green)"></i> Επεξεργασία προϊόντος
+      </div>
+      <div class="field-label">Όνομα <span style="color:#e00">*</span></div>
+      <input type="text" class="field-input" id="edit-name" value="${p.name}">
+      <div class="field-label">Αργκό / αναζήτηση</div>
+      <input type="text" class="field-input" id="edit-slang" value="${p.slang}">
+      <div class="field-label">Προμηθευτής</div>
+      <input type="text" class="field-input" id="edit-supplier" value="${p.supplier||''}">
+      <div class="field-label">Κατηγορία</div>
+      <select class="field-input" id="edit-cat">${catOpts}</select>
+      <div class="field-label">Μονάδα</div>
+      <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid #ddd" id="edit-unit-seg">${unitBtns}</div>
+      <input type="hidden" id="edit-unit-val" value="${p.unit}">
+      <div class="modal-acts" style="margin-top:20px">
+        <button onclick="confirmDeleteProd('${pid}')" style="padding:11px 14px;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;border:none;background:#FEE2E2;color:#B91C1C">
+          <i class="ti ti-trash"></i>
+        </button>
+        <button class="btn-cancel" onclick="document.getElementById('edit-modal').remove()">Ακύρωση</button>
+        <button onclick="saveEditProd('${pid}','${cat}')" style="flex:1;padding:11px;border-radius:var(--border-radius-md);font-size:14px;font-weight:600;cursor:pointer;border:none;background:#1D9E75;color:#fff">
+          <i class="ti ti-check"></i> Αποθήκευση
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function editSetUnit(u, btn) {
+  document.getElementById('edit-unit-val').value = u;
+  btn.parentElement.querySelectorAll('button').forEach(b => {
+    b.style.cssText = 'flex:1;padding:8px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:#f0f0f0;color:#555';
+  });
+  btn.style.cssText = 'flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#1D9E75;color:#fff';
+}
+
+function saveEditProd(pid, oldCat) {
+  const name     = document.getElementById('edit-name').value.trim();
+  const slang    = document.getElementById('edit-slang').value.trim();
+  const supplier = document.getElementById('edit-supplier').value.trim();
+  const newCat   = document.getElementById('edit-cat').value;
+  const unit     = document.getElementById('edit-unit-val').value;
+  if (!name) { showToast('Το όνομα είναι υποχρεωτικό', 'error'); return; }
+
+  // Αν άλλαξε κατηγορία, μετακίνηση
+  if (newCat !== oldCat) {
+    window.PRODUCTS[oldCat] = (window.PRODUCTS[oldCat] || []).filter(p => p.id !== pid);
+    if (!window.PRODUCTS[newCat]) window.PRODUCTS[newCat] = [];
+    window.PRODUCTS[newCat].push({ id: pid, name, slang: slang || name.toLowerCase(), unit, supplier });
+  } else {
+    const p = getProd(pid);
+    if (p) { p.name = name; p.slang = slang || name.toLowerCase(); p.unit = unit; p.supplier = supplier; }
+  }
+  // Ενημέρωση unit στο orderState αν υπάρχει
+  if (orderState[pid]) orderState[pid].unit = unit;
+
+  autoSave();
+  document.getElementById('edit-modal').remove();
+  renderCatalog('');
+  renderOrder();
+  showToast('Αποθηκεύτηκε!');
+}
+
+function confirmDeleteProd(pid) {
+  const p = getProd(pid);
+  if (!confirm(`Διαγραφή "${p ? p.name : pid}" από τον κατάλογο;`)) return;
+  const cat = getCatOfProd(pid);
+  window.PRODUCTS[cat] = (window.PRODUCTS[cat] || []).filter(pr => pr.id !== pid);
+  delete orderState[pid];
+  autoSave();
+  document.getElementById('edit-modal').remove();
+  renderCatalog('');
+  renderOrder();
+  showToast('Διαγράφηκε');
 }
 
 // ============================================================
