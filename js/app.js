@@ -403,7 +403,9 @@ function liveSearch(q) {
     box.style.display = 'block'; return;
   }
   const allHistIds = new Set(Object.values(cur && cur.history || {}).flatMap(o => Object.keys(o)));
-  box.innerHTML = hits.slice(0, 12).map(p => {
+  const allHits = hits;
+  const shown = allHits.slice(0, 30);
+  box.innerHTML = shown.map(p => {
     const already = allHistIds.has(p.id);
     const cat = getCatOfProd(p.id);
     const z = ZONES[getZone(cat)];
@@ -418,6 +420,9 @@ function liveSearch(q) {
       <span style="font-size:11px;color:#1D9E75;font-weight:600">${already ? 'Ενεργοποίηση' : '+ Προσθήκη'}</span>
     </div>`;
   }).join('');
+  if (allHits.length > 30) {
+    box.innerHTML += `<div style="text-align:center;font-size:11px;color:var(--color-text-tertiary);padding:6px">+${allHits.length - 30} ακόμη — γράψε πιο συγκεκριμένα</div>`;
+  }
   box.style.display = 'block';
 }
 
@@ -721,9 +726,21 @@ function copyOrder() {
   }
   navigator.clipboard.writeText(txt)
     .then(() => {
-      // Καθαρισμός εκκρεμούς παραγγελίας μετά την αποστολή
-      if (cur) delete pendingOrders[cur.id];
-      saveSession();
+      // Αποθήκευση παραγγελίας στο ιστορικό πελάτη
+      if (cur) {
+        if (!cur.history) cur.history = {};
+        Object.entries(orderState).forEach(([pid, st]) => {
+          if (!st.on) return;
+          const cat = getCatOfProd(pid);
+          if (!cat) return;
+          if (!cur.history[cat]) cur.history[cat] = {};
+          cur.history[cat][pid] = st.qty;
+        });
+        autoSave();
+        // Καθαρισμός εκκρεμούς παραγγελίας
+        delete pendingOrders[cur.id];
+        saveSession();
+      }
       showToast('Αντιγράφηκε! ✓');
     })
     .catch(() => showToast('Σφάλμα αντιγραφής', 'error'));
